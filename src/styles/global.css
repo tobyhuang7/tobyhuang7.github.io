@@ -1,0 +1,58 @@
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	font-family: "Source Sans 3", "Segoe UI", sans-serif;
+	font-size: 1.05rem;
+	line-height: 1.5;
+	-webkit-font-smoothing: antialiased;
+}
+
+body[data-theme='light'] {
+	background: #e4e9fd;
+	color: #3a4468;
+}
+
+body[data-theme='dark'] {
+	background: #181d3b;
+	color: #f7f4ff;
+}
+
+img {
+	max-width: 100%;
+}
+
+a:focus-visible,
+button:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 3px;
+}
+
+.skip {
+	position: absolute;
+	left: 1rem;
+	top: -4rem;
+	z-index: 40;
+	background: #fff;
+	color: #181d3b;
+	padding: 0.4rem 0.7rem;
+}
+
+.skip:focus {
+	top: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+}

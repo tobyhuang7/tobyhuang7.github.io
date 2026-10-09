@@ -1,0 +1,198 @@
+---
+import type { PortfolioSection } from '../data/portfolio';
+import Header from './Header.astro';
+
+interface Props {
+	section: PortfolioSection;
+}
+
+const { section } = Astro.props;
+---
+
+<div class="section-page">
+	<Header theme="dark" current={section.slug} />
+	<main id="main">
+		<div class="copy">
+			<h1>{section.title}</h1>
+			{section.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+			<p class="prompt">{section.prompt}</p>
+		</div>
+		<div class="thumbs" id="projects">
+			{
+				section.projects.map((project) => (
+					<a href={`#${project.id}`} aria-label={project.title}>
+						<img src={project.image} alt="" width="800" height="520" />
+					</a>
+				))
+			}
+		</div>
+	</main>
+	{
+		section.projects.map((project) => (
+			<div class="overlay" id={project.id}>
+				<a class="overlay-close" href="#projects">
+					Close
+				</a>
+				<figure>
+					<img src={project.image} alt="" width="800" height="520" />
+					<figcaption>
+						<strong>{project.title}</strong>
+						<span>{project.caption}</span>
+					</figcaption>
+				</figure>
+			</div>
+		))
+	}
+</div>
+
+<style>
+	.section-page {
+		min-height: 100vh;
+		display: flex;
+		flex-direction: column;
+	}
+
+	main {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.copy {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		text-align: center;
+		padding: 1.5rem 1.25rem 1.25rem;
+	}
+
+	h1,
+	.prompt {
+		font-family: "Libre Baskerville", Palatino, Georgia, serif;
+		font-style: italic;
+		font-weight: 400;
+		color: #ee9cf9;
+	}
+
+	h1 {
+		margin: 0 0 1.1rem;
+		font-size: clamp(2.3rem, 5vw, 3.5rem);
+	}
+
+	.copy p {
+		max-width: 44rem;
+		margin: 0.45rem auto;
+		font-family: "Libre Baskerville", Palatino, Georgia, serif;
+		font-size: 1.02rem;
+		line-height: 1.7;
+		color: #f7f4ff;
+	}
+
+	.prompt {
+		margin-top: 1.35rem;
+		font-size: 1.2rem;
+	}
+
+	.thumbs {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 0.65rem;
+		padding: 0 0.65rem 0.65rem;
+	}
+
+	.thumbs a {
+		display: block;
+		aspect-ratio: 16 / 10;
+		overflow: hidden;
+		background: #101426;
+	}
+
+	.thumbs img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	.thumbs a:hover img,
+	.thumbs a:focus-visible img {
+		transform: scale(1.03);
+	}
+
+	.thumbs img {
+		transition: transform 180ms ease;
+	}
+
+	.overlay {
+		display: none;
+	}
+
+	.overlay:target {
+		position: fixed;
+		inset: 0;
+		z-index: 30;
+		display: grid;
+		place-items: center;
+		padding: 4.5rem 1.25rem 1.5rem;
+		background: #0c1022;
+	}
+
+	.overlay figure {
+		margin: 0;
+		width: min(60rem, 100%);
+		background: #12162c;
+		padding: 0.7rem 0.7rem 1rem;
+	}
+
+	.overlay img {
+		display: block;
+		width: 100%;
+		max-height: 68vh;
+		object-fit: cover;
+		background: #101426;
+	}
+
+	.overlay figcaption {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		margin-top: 0.8rem;
+		color: #f7f4ff;
+	}
+
+	.overlay strong {
+		font-family: "Libre Baskerville", Palatino, Georgia, serif;
+		font-style: italic;
+		font-weight: 400;
+		font-size: 1.45rem;
+		color: #ee9cf9;
+	}
+
+	.overlay-close {
+		position: absolute;
+		top: 1.1rem;
+		right: 1.25rem;
+		color: #ee9cf9;
+		font-family: "Libre Baskerville", Palatino, Georgia, serif;
+		font-style: italic;
+		text-decoration: none;
+		font-size: 1.15rem;
+	}
+
+	@media (max-width: 720px) {
+		.thumbs {
+			grid-template-columns: 1fr;
+		}
+
+		.copy p {
+			font-size: 0.98rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.thumbs img {
+			transition: none;
+		}
+	}
+</style>

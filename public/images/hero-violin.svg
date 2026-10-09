@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="160 40 460 820" role="img">
+
+<defs>
+  <linearGradient id="stage" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#12141c"/>
+    <stop offset="1" stop-color="#05060a"/>
+  </linearGradient>
+  <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#e0a04a"/>
+    <stop offset="1" stop-color="#a86520"/>
+  </linearGradient>
+  
+<filter id="grain" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" result="n"/>
+  <feColorMatrix in="n" type="saturate" values="0" result="g"/>
+  <feComponentTransfer in="g" result="a">
+    <feFuncA type="linear" slope="0.22"/>
+  </feComponentTransfer>
+  <feBlend in="SourceGraphic" in2="a" mode="multiply"/>
+</filter>
+
+</defs>
+<g filter="url(#grain)">
+  <rect width="640" height="900" fill="url(#stage)"/>
+  <ellipse cx="180" cy="220" rx="90" ry="220" fill="#1a1c28"/>
+  <rect x="250" y="620" width="18" height="220" fill="#101116"/>
+  <polygon points="150,470 390,500 410,690 130,660" fill="#16181f"/>
+  <g transform="translate(390 150) rotate(32)">
+    <rect x="-5" y="0" width="10" height="250" fill="#4a3018"/>
+    <rect x="-7" y="0" width="3" height="250" fill="#efe6d4" opacity="0.7"/>
+    <ellipse cx="0" cy="320" rx="62" ry="84" fill="url(#wood)"/>
+    <ellipse cx="0" cy="455" rx="70" ry="96" fill="url(#wood)"/>
+    <ellipse cx="0" cy="385" rx="18" ry="26" fill="#1a120c"/>
+    <path d="M-40 300 q40 20 0 70" fill="none" stroke="#f2d7a2" stroke-width="2"/>
+    <path d="M-8 250 q6 80 0 200" fill="none" stroke="#f7efe2" stroke-width="1.4"/>
+  </g>
+  <path d="M120 180 q180 40 300 10" fill="none" stroke="#d9b27a" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="520" cy="300" r="70" fill="#f4efe6" opacity="0.04"/>
+</g>
+
+</svg>

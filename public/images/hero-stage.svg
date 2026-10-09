@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="140 180 480 620" role="img">
+
+<defs>
+  <radialGradient id="bg" cx="50%" cy="45%" r="70%">
+    <stop offset="0" stop-color="#6a4d86"/>
+    <stop offset="0.55" stop-color="#3d315f"/>
+    <stop offset="1" stop-color="#241c3a"/>
+  </radialGradient>
+  <radialGradient id="leaf" cx="50%" cy="50%" r="50%">
+    <stop offset="0" stop-color="#3f8f62" stop-opacity="0.9"/>
+    <stop offset="1" stop-color="#3f8f62" stop-opacity="0"/>
+  </radialGradient>
+  
+<filter id="grain" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" result="n"/>
+  <feColorMatrix in="n" type="saturate" values="0" result="g"/>
+  <feComponentTransfer in="g" result="a">
+    <feFuncA type="linear" slope="0.22"/>
+  </feComponentTransfer>
+  <feBlend in="SourceGraphic" in2="a" mode="multiply"/>
+</filter>
+
+</defs>
+<g filter="url(#grain)">
+  <rect width="760" height="860" fill="url(#bg)"/>
+  <circle cx="120" cy="160" r="140" fill="url(#leaf)"/>
+  <circle cx="250" cy="80" r="90" fill="url(#leaf)"/>
+  <circle cx="80" cy="300" r="100" fill="url(#leaf)"/>
+  <circle cx="620" cy="140" r="120" fill="#d7c4a2" opacity="0.18"/>
+  <circle cx="500" cy="220" r="70" fill="#9a6bff" opacity="0.25"/>
+  <path d="M230 250 h300 l40 520 H190z" fill="#c6a36a"/>
+  <path d="M310 270 h140 l24 470 H286z" fill="#d4653a"/>
+  <path d="M330 300 h100 v70 h-100z" fill="#f2e2cf" opacity="0.85"/>
+  <path d="M250 430 q80 30 40 90" fill="none" stroke="#8d5a32" stroke-width="10"/>
+  <ellipse cx="470" cy="560" rx="46" ry="28" fill="#e7c8a4"/>
+  <rect x="0" y="360" width="760" height="180" fill="#1a1428" opacity="0.28"/>
+</g>
+
+</svg>

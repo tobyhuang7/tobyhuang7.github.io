@@ -1,0 +1,23 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionView from '../components/SectionView.astro';
+import { sections } from '../data/portfolio';
+import type { PortfolioSection } from '../data/portfolio';
+
+export function getStaticPaths() {
+	return sections.map((section) => ({
+		params: { slug: section.slug },
+		props: { section },
+	}));
+}
+
+interface Props {
+	section: PortfolioSection;
+}
+
+const { section } = Astro.props;
+---
+
+<Base title={`${section.label} · Toby’s Portfolio`} theme="dark">
+	<SectionView section={section} />
+</Base>
