@@ -14,6 +14,7 @@ export interface PortfolioSection {
 	prompt: string;
 	projects: ProjectItem[];
 	inNav: boolean;
+	mention?: { before: string; href: string; label: string };
 }
 
 export const sections: PortfolioSection[] = [
@@ -65,8 +66,13 @@ export const sections: PortfolioSection[] = [
 		lede: 'Philosophy, and physics through the observatory.',
 		paragraphs: [
 			'I study Physics and Philosophy at Yale, in Directed Studies. The questions are about what we can know, and about how people should live together.',
-			'The physics is the sky. I founded Dixon Observatory at Berkshire and restored it after three years unused. The writing is on elections, sortition, and whether music has changed the course of history.',
+			'The writing is on elections, sortition, and whether music has changed the course of history.',
 		],
+		mention: {
+			before: 'The physics is the sky, at',
+			href: '/astrophotography',
+			label: 'Dixon Observatory',
+		},
 		prompt: 'Click on a project below to see more.',
 		inNav: true,
 		projects: [
@@ -76,13 +82,6 @@ export const sections: PortfolioSection[] = [
 				image: '/images/photo-street.svg',
 				caption:
 					'Yale’s Directed Studies program: philosophy, literature, and historical-political thought.',
-			},
-			{
-				id: 'dixon',
-				title: 'Dixon Observatory',
-				image: '/images/sky-stars.svg',
-				caption:
-					'Founded the observatory at Berkshire, restored the telescope after three years unused, and led stargazing and a solar eclipse expedition.',
 			},
 			{
 				id: 'essays',

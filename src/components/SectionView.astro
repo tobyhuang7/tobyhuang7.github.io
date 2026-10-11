@@ -15,6 +15,14 @@ const { section } = Astro.props;
 		<div class="copy">
 			<h1>{section.title}</h1>
 			{section.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+			{
+				section.mention && (
+					<p>
+						{section.mention.before}{' '}
+						<a href={section.mention.href}>{section.mention.label}</a>.
+					</p>
+				)
+			}
 			{section.projects.length > 0 && <p class="prompt">{section.prompt}</p>}
 		</div>
 		{section.projects.length > 0 && <div class="thumbs" id="projects">
@@ -87,6 +95,11 @@ const { section } = Astro.props;
 		font-size: 1.02rem;
 		line-height: 1.7;
 		color: #f7f4ff;
+	}
+
+	.copy a {
+		color: #ee9cf9;
+		text-underline-offset: 0.28em;
 	}
 
 	.prompt {
