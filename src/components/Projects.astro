@@ -1,6 +1,6 @@
 ---
 import Header from './Header.astro';
-import { sections } from '../data/portfolio';
+import { nav } from '../data/portfolio';
 
 const cv = [
 	{
@@ -92,7 +92,7 @@ const cv = [
 				<h2 id="tabs-title">Pick a tab</h2>
 				<ul>
 					{
-						sections.map((section) => (
+						nav.map((section) => (
 							<li>
 								<a href={`/${section.slug}`}>
 									<span>{section.label}</span>

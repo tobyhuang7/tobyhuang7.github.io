@@ -93,6 +93,8 @@ export const sections: PortfolioSection[] = [
 			},
 		],
 	},
+	// Hidden until there are projects to post.
+	// To bring this tab back, set `inNav` to true. The page stays at /technical.
 	{
 		slug: 'technical',
 		label: 'Technical',
@@ -103,7 +105,7 @@ export const sections: PortfolioSection[] = [
 			'Nothing is posted here yet. I will add projects as they are ready.',
 		],
 		prompt: '',
-		inNav: true,
+		inNav: false,
 		projects: [],
 	},
 	{
