@@ -77,9 +77,10 @@ export const sections: PortfolioSection[] = [
 		inNav: true,
 		projects: [
 			{
+				// TODO: this card was using the Photography "Street" image. It needs its own picture.
 				id: 'directed-studies',
 				title: 'Directed Studies',
-				image: '/images/photo-street.svg',
+				image: '/images/placeholder.svg',
 				caption:
 					'Yale’s Directed Studies program: philosophy, literature, and historical-political thought.',
 			},
