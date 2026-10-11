@@ -15,9 +15,9 @@ const { section } = Astro.props;
 		<div class="copy">
 			<h1>{section.title}</h1>
 			{section.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
-			<p class="prompt">{section.prompt}</p>
+			{section.projects.length > 0 && <p class="prompt">{section.prompt}</p>}
 		</div>
-		<div class="thumbs" id="projects">
+		{section.projects.length > 0 && <div class="thumbs" id="projects">
 			{
 				section.projects.map((project) => (
 					<a href={`#${project.id}`} aria-label={project.title}>
@@ -25,7 +25,7 @@ const { section } = Astro.props;
 					</a>
 				))
 			}
-		</div>
+		</div>}
 	</main>
 	{
 		section.projects.map((project) => (
@@ -96,7 +96,7 @@ const { section } = Astro.props;
 
 	.thumbs {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
+		grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
 		gap: 0.65rem;
 		padding: 0 0.65rem 0.65rem;
 	}

@@ -18,106 +18,102 @@ export interface PortfolioSection {
 
 export const sections: PortfolioSection[] = [
 	{
-		slug: 'violin-in-concert',
-		label: 'Violin In Concert',
-		title: 'In Concert',
-		lede: 'Recitals, ensemble playing, and solos from the hall.',
+		slug: 'performance',
+		label: 'Performance',
+		title: 'Performance',
+		lede: 'Violin, theater, and choir.',
 		paragraphs: [
-			'These are the performances with a program and a quiet room: recitals, ensemble concerts, and featured solos.',
-		],
-		prompt: 'Click on a performance below to watch.',
-		inNav: true,
-		projects: [
-			{
-				id: 'recital',
-				title: 'Recital',
-				image: '/images/concert-recital.svg',
-				caption: 'A solo recital set.',
-			},
-			{
-				id: 'ensemble',
-				title: 'Ensemble',
-				image: '/images/concert-ensemble.svg',
-				caption: 'Playing with a group.',
-			},
-			{
-				id: 'solo',
-				title: 'Solo',
-				image: '/images/concert-solo.svg',
-				caption: 'A featured solo or concerto movement.',
-			},
-		],
-	},
-	{
-		slug: 'violin-for-good',
-		label: 'Violin For Good',
-		title: 'Violin For Good',
-		lede: 'Playing outside the concert hall, for people and for causes.',
-		paragraphs: [
-			'Some of the playing is not a ticketed concert. It is for a room, a cause, or someone who needs the music more than a program note.',
-		],
-		prompt: 'Click on a visit below to watch.',
-		inNav: true,
-		projects: [
-			{
-				id: 'room',
-				title: 'A room',
-				image: '/images/good-room.svg',
-				caption: 'Playing for a smaller room than a hall.',
-			},
-			{
-				id: 'visit',
-				title: 'A visit',
-				image: '/images/good-visit.svg',
-				caption: 'Taking the violin to people who asked for it.',
-			},
-			{
-				id: 'together',
-				title: 'Together',
-				image: '/images/good-ensemble.svg',
-				caption: 'Playing with others for a cause.',
-			},
-		],
-	},
-	{
-		slug: 'theater',
-		label: 'Theater',
-		title: 'On Stage and On Screen',
-		lede: 'Stage roles, and movies I direct.',
-		paragraphs: [
-			'Theater is both sides of the work: roles I play, and films I direct. A scene, a cue, and an audience.',
+			'Violin, theater, and choir sit in one place. I play in the Yale Symphony Orchestra, sing with the Yale Glee Club, and direct the Symphony’s Halloween film.',
+			'The playing also leaves campus: benefit concerts with student musicians in New York, Los Angeles, Hong Kong, and Beijing.',
 		],
 		prompt: 'Click on a piece below to see more.',
 		inNav: true,
 		projects: [
 			{
-				id: 'stage',
-				title: 'Stage',
-				image: '/images/theater-stage.svg',
-				caption: 'A role in a play.',
+				id: 'symphony',
+				title: 'Yale Symphony Orchestra',
+				image: '/images/concert-ensemble.svg',
+				caption:
+					'Violin in the Yale Symphony Orchestra, as a rotating section leader, and director of the 2026 Halloween Show.',
 			},
 			{
-				id: 'film',
-				title: 'A film I directed',
+				id: 'halloween',
+				title: 'Halloween film',
 				image: '/images/theater-film.svg',
-				caption: 'A movie I directed.',
+				caption:
+					'Directed the Symphony’s feature-length Halloween film for an audience of 2,500 in Woolsey Hall.',
 			},
 			{
-				id: 'rehearsal',
-				title: 'Rehearsal',
-				image: '/images/theater-rehearsal.svg',
-				caption: 'The room before the show.',
+				id: 'choir',
+				title: 'Yale Glee Club',
+				image: '/images/theater-stage.svg',
+				caption: 'Choir with the Yale Glee Club.',
+			},
+			{
+				id: 'benefit-concerts',
+				title: 'Benefit concerts',
+				image: '/images/good-ensemble.svg',
+				caption:
+					'A concert series I organize, with student musicians in New York, Los Angeles, Hong Kong, and Beijing.',
 			},
 		],
+	},
+	{
+		slug: 'academic',
+		label: 'Academic',
+		title: 'Academic',
+		lede: 'Philosophy, and physics through the observatory.',
+		paragraphs: [
+			'I study Physics and Philosophy at Yale, in Directed Studies. The questions are about what we can know, and about how people should live together.',
+			'The physics is the sky. I founded Dixon Observatory at Berkshire and restored it after three years unused. The writing is on elections, sortition, and whether music has changed the course of history.',
+		],
+		prompt: 'Click on a project below to see more.',
+		inNav: true,
+		projects: [
+			{
+				id: 'directed-studies',
+				title: 'Directed Studies',
+				image: '/images/photo-street.svg',
+				caption:
+					'Yale’s Directed Studies program: philosophy, literature, and historical-political thought.',
+			},
+			{
+				id: 'dixon',
+				title: 'Dixon Observatory',
+				image: '/images/sky-stars.svg',
+				caption:
+					'Founded the observatory at Berkshire, restored the telescope after three years unused, and led stargazing and a solar eclipse expedition.',
+			},
+			{
+				id: 'essays',
+				title: 'Essays',
+				image: '/images/tech-log.svg',
+				caption:
+					'Papers on whether elections represent the will of the people, and on sortition. A John Locke essay on music and history, commended and shortlisted.',
+			},
+		],
+	},
+	{
+		slug: 'technical',
+		label: 'Technical',
+		title: 'Personal Projects',
+		lede: 'Builds of my own, separate from coursework and research.',
+		paragraphs: [
+			'This tab is for personal technical projects: tools and builds that are not a class and not a paper.',
+			'Nothing is posted here yet. I will add projects as they are ready.',
+		],
+		prompt: '',
+		inNav: true,
+		projects: [],
 	},
 	{
 		slug: 'astrophotography',
 		label: 'Astrophotography',
 		title: 'Capturing the Cosmos',
-		lede: 'Night-sky pictures and near-Earth object research from a restored observatory.',
+		lede: 'Night-sky pictures from Dixon Observatory.',
 		paragraphs: [
-			'I am fortunate enough to live at a school with an observatory.',
-			'After spending a year restoring it from its abandoned state, I now regularly go there to take pictures and conduct research on Near Earth Objects like asteroids and comets.',
+			'I was fortunate enough to go to a school with an observatory.',
+			'After restoring Dixon Observatory at Berkshire from three years unused, I went there to take pictures, host stargazing, and chase events like the solar eclipse.',
 			'Whenever there is an astronomic event, I rush out of my room with my phone/camera and a tripod, eager to capture the spectacular show the cosmos is about to put on.',
 		],
 		prompt: 'Click on a project below to see pictures!',
@@ -171,37 +167,6 @@ export const sections: PortfolioSection[] = [
 				title: 'With a camera',
 				image: '/images/photo-portrait.svg',
 				caption: 'A portrait sitting, camera in hand.',
-			},
-		],
-	},
-	{
-		slug: 'technical',
-		label: 'Technical',
-		title: 'Things I Build',
-		lede: 'Code, research tools, and projects that start as a problem.',
-		paragraphs: [
-			'Technical work sits next to the playing and the pictures. Some of it supports the observatory research. Some of it is a build of its own.',
-		],
-		prompt: 'Click on a project below to see more.',
-		inNav: true,
-		projects: [
-			{
-				id: 'orbits',
-				title: 'Orbits',
-				image: '/images/tech-orbits.svg',
-				caption: 'Notes and tools for near-Earth objects: asteroids and comets.',
-			},
-			{
-				id: 'build',
-				title: 'A build',
-				image: '/images/tech-build.svg',
-				caption: 'A project built to solve a specific problem.',
-			},
-			{
-				id: 'log',
-				title: 'Field log',
-				image: '/images/tech-log.svg',
-				caption: 'A log of nights at the observatory.',
 			},
 		],
 	},
