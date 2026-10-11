@@ -7,26 +7,31 @@ const cv = [
 		label: 'Education',
 		detail:
 			'Yale University, B.S. candidate in Physics and Philosophy, Directed Studies. Berkshire School.',
+		href: '/academic#directed-studies',
 	},
 	{
 		label: 'Violin',
 		detail:
 			'Yale Symphony Orchestra, rotating section leader and 2026 Halloween Show director. Benefit concerts in New York, Los Angeles, Hong Kong, and Beijing.',
+		href: '/performance#symphony',
 	},
 	{
 		label: 'Film',
 		detail:
 			'Directed the Symphony’s Halloween film for an audience of 2,500 in Woolsey Hall.',
+		href: '/performance#halloween',
 	},
 	{
 		label: 'Observatory',
 		detail:
 			'Founded Dixon Observatory at Berkshire and restored it after three years unused.',
+		href: '/astrophotography',
 	},
 	{
 		label: 'Research',
 		detail:
 			'Papers on elections and sortition, and a John Locke essay on music and history, commended and shortlisted.',
+		href: '/academic#essays',
 	},
 ];
 ---
@@ -80,6 +85,7 @@ const cv = [
 							<div>
 								<dt>{row.label}</dt>
 								<dd>{row.detail}</dd>
+								<a href={row.href}>{row.label}</a>
 							</div>
 						))
 					}
@@ -225,11 +231,31 @@ const cv = [
 	}
 
 	.cv div {
+		position: relative;
 		display: grid;
 		grid-template-columns: 10.5rem 1fr;
 		gap: 1rem 1.4rem;
 		padding: 0.95rem 0;
 		border-top: 1px solid rgba(106, 122, 180, 0.35);
+	}
+
+	.cv div a {
+		position: absolute;
+		inset: 0;
+		color: transparent;
+	}
+
+	.cv div a:focus-visible {
+		outline: 2px solid #6a7ab4;
+		outline-offset: 3px;
+	}
+
+	.cv div:hover dt,
+	.cv div:hover dd,
+	.cv div:focus-within dt,
+	.cv div:focus-within dd {
+		text-decoration: underline;
+		text-underline-offset: 0.28em;
 	}
 
 	.cv dt {
