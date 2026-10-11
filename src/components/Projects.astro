@@ -2,37 +2,24 @@
 import Header from './Header.astro';
 import { nav } from '../data/portfolio';
 
-const cv = [
+const facts = [
+	{ figure: '2,600+', detail: 'in Woolsey Hall for the Halloween film' },
+	{ figure: '4+', detail: 'cities for organized benefit concerts' },
+	{ figure: '12', detail: 'years playing the violin' },
 	{
-		label: 'Academic',
-		detail:
-			'Yale University, B.S. candidate in Physics and Philosophy, Directed Studies. Berkshire School.',
-		href: '/academic#directed-studies',
+		figure: '2',
+		detail: 'years working to rebuild Dixon Observatory at Berkshire School',
 	},
-	{
-		label: 'Performance',
-		detail:
-			'Yale Symphony Orchestra, rotating section leader and 2026 Halloween Show director. Benefit concerts in New York, Los Angeles, Hong Kong, and Beijing.',
-		href: '/performance#symphony',
-	},
-	{
-		label: 'Film',
-		detail:
-			'Directed the Symphony’s Halloween film for an audience of 2,500 in Woolsey Hall.',
-		href: '/performance#halloween',
-	},
-	{
-		label: 'Astrophotography',
-		detail:
-			'Founded Dixon Observatory at Berkshire and restored it after three years unused.',
-		href: '/astrophotography',
-	},
-	{
-		label: 'Research',
-		detail:
-			'Papers on elections and sortition, and a John Locke essay on music and history, commended and shortlisted.',
-		href: '/academic#research',
-	},
+];
+
+const interests = [
+	'Violin',
+	'Theater',
+	'Choir',
+	'Film',
+	'Philosophy',
+	'Physics',
+	'Astrophotography',
 ];
 ---
 
@@ -77,25 +64,26 @@ const cv = [
 					Symphony Orchestra, direct its Halloween film, and founded an observatory
 					and a series of benefit concerts.
 				</p>
-				<p>The note below is a short CV. The tabs after it open the work.</p>
+				<p>A few facts below. The tabs after them open the work.</p>
 				{/* TODO: Toby to review wording */}
 				<p>
 					I study what we can know, and how people should live together, and I
 					start things and get them running: the observatory, the benefit
 					concerts, and the film.
 				</p>
-				<h3>A short CV</h3>
-				<dl class="cv">
+				<ul class="facts">
 					{
-						cv.map((row) => (
-							<div>
-								<dt>{row.label}</dt>
-								<dd>{row.detail}</dd>
-								<a href={row.href}>{row.label}</a>
-							</div>
+						facts.map((fact) => (
+							<li>
+								<strong>{fact.figure}</strong>
+								<span>{fact.detail}</span>
+							</li>
 						))
 					}
-				</dl>
+				</ul>
+				<ul class="interests" aria-label="Skills and interests">
+					{interests.map((interest) => <li>{interest}</li>)}
+				</ul>
 			</div>
 		</section>
 
@@ -203,7 +191,6 @@ const cv = [
 	}
 
 	.intro h2,
-	.intro h3,
 	.tabs h2 {
 		margin: 0;
 		text-align: center;
@@ -226,53 +213,52 @@ const cv = [
 		line-height: 1.65;
 	}
 
-	.intro h3 {
-		margin-top: 2.4rem;
-		font-size: 1.55rem;
-	}
-
-	.cv {
-		margin: 1.2rem auto 0;
-		max-width: 44rem;
-	}
-
-	.cv div {
-		position: relative;
+	.facts {
 		display: grid;
-		grid-template-columns: 10.5rem 1fr;
-		gap: 1rem 1.4rem;
-		padding: 0.95rem 0;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 1.25rem 1rem;
+		margin: 1.5rem 0 0;
+		padding: 1.15rem 0 0;
+		list-style: none;
+		text-align: center;
 		border-top: 1px solid rgba(106, 122, 180, 0.35);
 	}
 
-	.cv div a {
-		position: absolute;
-		inset: 0;
-		color: transparent;
+	.facts strong {
+		display: block;
+		font-family: "Libre Baskerville", Palatino, Georgia, serif;
+		font-style: italic;
+		font-weight: 400;
+		font-size: clamp(1.8rem, 3vw, 2.35rem);
+		line-height: 1.1;
+		color: #6a7ab4;
 	}
 
-	.cv div a:focus-visible {
-		outline: 2px solid #6a7ab4;
-		outline-offset: 3px;
+	.facts span {
+		display: block;
+		margin-top: 0.4rem;
+		font-size: 0.95rem;
+		line-height: 1.45;
 	}
 
-	.cv div:hover dt,
-	.cv div:hover dd,
-	.cv div:focus-within dt,
-	.cv div:focus-within dd {
-		text-decoration: underline;
-		text-underline-offset: 0.28em;
-	}
-
-	.cv dt {
+	.interests {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.35rem 0;
+		margin: 1.35rem 0 0;
+		padding: 0;
+		list-style: none;
 		font-family: "Libre Baskerville", Palatino, Georgia, serif;
 		font-style: italic;
 		color: #5d6da8;
 	}
 
-	.cv dd {
-		margin: 0;
-		line-height: 1.5;
+	.interests li:not(:last-child)::after {
+		content: "·";
+		margin: 0 0.55rem;
+		font-style: normal;
+		color: #6a7ab4;
 	}
 
 	.tabs ul {
@@ -287,7 +273,7 @@ const cv = [
 	.tabs a {
 		display: flex;
 		flex-direction: column;
-		justify-content: space-between;
+		justify-content: flex-start;
 		gap: 0.65rem;
 		min-height: 9.2rem;
 		padding: 1.15rem 1.1rem 1rem;
@@ -336,9 +322,8 @@ const cv = [
 			height: min(70vw, 24rem);
 		}
 
-		.cv div {
-			grid-template-columns: 1fr;
-			gap: 0.25rem;
+		.facts {
+			grid-template-columns: 1fr 1fr;
 		}
 	}
 </style>

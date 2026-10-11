@@ -20,10 +20,10 @@ export interface PortfolioSection {
 
 export const sections: PortfolioSection[] = [
 	{
-		slug: 'performance',
-		label: 'Performance',
-		title: 'Performance',
-		lede: 'Violin, theater, and choir.',
+		slug: 'music-and-film',
+		label: 'Music & Film',
+		title: 'Music & Film',
+		lede: 'Violin, theater, and choir. Yale Symphony Orchestra, rotating section leader and 2026 Halloween Show director. Benefit concerts in New York, Los Angeles, Hong Kong, and Beijing. Directed the Symphony’s Halloween film for an audience of 2,600+ in Woolsey Hall.',
 		paragraphs: [
 			'Violin, theater, and choir sit in one place. I play in the Yale Symphony Orchestra, sing with the Yale Glee Club, and direct the Symphony’s Halloween film.',
 			'The playing also leaves campus: benefit concerts with student musicians in New York, Los Angeles, Hong Kong, and Beijing.',
@@ -43,7 +43,7 @@ export const sections: PortfolioSection[] = [
 				title: 'Halloween film',
 				image: '/images/theater-film.svg',
 				caption:
-					'Directed the Symphony’s feature-length Halloween film for an audience of 2,500 in Woolsey Hall.',
+					'Directed the Symphony’s feature-length Halloween film for an audience of 2,600+ in Woolsey Hall.',
 			},
 			{
 				id: 'choir',
@@ -61,18 +61,54 @@ export const sections: PortfolioSection[] = [
 		],
 	},
 	{
-		slug: 'academic',
-		label: 'Academic',
-		title: 'Academic',
-		lede: 'Philosophy, and physics through the observatory.',
+		slug: 'science-and-observatory',
+		label: 'Science & Observatory',
+		title: 'Science & Observatory',
+		lede: 'Night-sky pictures from Dixon Observatory. Founded Dixon Observatory at Berkshire and restored it after three years unused.',
+		paragraphs: [
+			'The physics is the sky.',
+			'I was fortunate enough to go to a school with an observatory.',
+			'After restoring Dixon Observatory at Berkshire from three years unused, I went there to take pictures, host stargazing, and chase events like the solar eclipse.',
+			'Whenever there is an astronomic event, I rush out of my room with my phone/camera and a tripod, eager to capture the spectacular show the cosmos is about to put on.',
+		],
+		prompt: 'Click on a project below to see pictures!',
+		inNav: true,
+		projects: [],
+		extras: [
+			{
+				id: 'astrophotography',
+				title: 'Astrophotography',
+				projects: [
+					{
+						id: 'star-field',
+						title: 'Star field',
+						image: '/images/sky-stars.svg',
+						caption: 'A field of stars from a dark night.',
+					},
+					{
+						id: 'night-glow',
+						title: 'Night glow',
+						image: '/images/sky-glow.svg',
+						caption: 'Color in the night sky.',
+					},
+					{
+						id: 'eclipse',
+						title: 'Eclipse',
+						image: '/images/sky-eclipse.svg',
+						caption: 'The moon crossing the sun.',
+					},
+				],
+			},
+		],
+	},
+	{
+		slug: 'writing',
+		label: 'Writing',
+		title: 'Writing',
+		lede: 'The questions are about what we can know, and about how people should live together. Yale University, B.S. candidate in Physics and Philosophy, Directed Studies. Berkshire School. Papers on elections and sortition, and a John Locke essay on music and history, commended and shortlisted.',
 		paragraphs: [
 			'I study Physics and Philosophy at Yale, in Directed Studies. The questions are about what we can know, and about how people should live together.',
 		],
-		mention: {
-			before: 'The physics is the sky, at',
-			href: '/astrophotography',
-			label: 'Dixon Observatory',
-		},
 		prompt: 'Click on a project below to see more.',
 		inNav: true,
 		projects: [
@@ -130,39 +166,6 @@ export const sections: PortfolioSection[] = [
 		prompt: '',
 		inNav: false,
 		projects: [],
-	},
-	{
-		slug: 'astrophotography',
-		label: 'Astrophotography',
-		title: 'Capturing the Cosmos',
-		lede: 'Night-sky pictures from Dixon Observatory.',
-		paragraphs: [
-			'I was fortunate enough to go to a school with an observatory.',
-			'After restoring Dixon Observatory at Berkshire from three years unused, I went there to take pictures, host stargazing, and chase events like the solar eclipse.',
-			'Whenever there is an astronomic event, I rush out of my room with my phone/camera and a tripod, eager to capture the spectacular show the cosmos is about to put on.',
-		],
-		prompt: 'Click on a project below to see pictures!',
-		inNav: true,
-		projects: [
-			{
-				id: 'star-field',
-				title: 'Star field',
-				image: '/images/sky-stars.svg',
-				caption: 'A field of stars from a dark night.',
-			},
-			{
-				id: 'night-glow',
-				title: 'Night glow',
-				image: '/images/sky-glow.svg',
-				caption: 'Color in the night sky.',
-			},
-			{
-				id: 'eclipse',
-				title: 'Eclipse',
-				image: '/images/sky-eclipse.svg',
-				caption: 'The moon crossing the sun.',
-			},
-		],
 	},
 	{
 		slug: 'photography',

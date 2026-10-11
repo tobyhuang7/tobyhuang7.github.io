@@ -30,7 +30,9 @@ const overlays = [
 					</p>
 				)
 			}
-			{section.projects.length > 0 && <p class="prompt">{section.prompt}</p>}
+			{(section.projects.length > 0 || extras.length > 0) && section.prompt && (
+				<p class="prompt">{section.prompt}</p>
+			)}
 		</div>
 		{section.projects.length > 0 && <div class="thumbs" id="projects">
 			{
