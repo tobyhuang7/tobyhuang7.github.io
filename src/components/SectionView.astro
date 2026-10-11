@@ -7,6 +7,13 @@ interface Props {
 }
 
 const { section } = Astro.props;
+const extras = section.extras ?? [];
+const overlays = [
+	...section.projects.map((project) => ({ ...project, close: '#projects' })),
+	...extras.flatMap((extra) =>
+		extra.projects.map((project) => ({ ...project, close: `#${extra.id}` })),
+	),
+];
 ---
 
 <div class="section-page">
@@ -34,11 +41,25 @@ const { section } = Astro.props;
 				))
 			}
 		</div>}
+		{
+			extras.map((extra) => (
+				<section class="extra" id={extra.id} aria-labelledby={`${extra.id}-title`}>
+					<h2 id={`${extra.id}-title`}>{extra.title}</h2>
+					<div class="thumbs">
+						{extra.projects.map((project) => (
+							<a href={`#${project.id}`} aria-label={project.title}>
+								<img src={project.image} alt="" width="800" height="520" />
+							</a>
+						))}
+					</div>
+				</section>
+			))
+		}
 	</main>
 	{
-		section.projects.map((project) => (
+		overlays.map((project) => (
 			<div class="overlay" id={project.id}>
-				<a class="overlay-close" href="#projects">
+				<a class="overlay-close" href={project.close}>
 					Close
 				</a>
 				<figure>
@@ -105,6 +126,24 @@ const { section } = Astro.props;
 	.prompt {
 		margin-top: 1.35rem;
 		font-size: 1.2rem;
+	}
+
+	.extra {
+		padding: 0 0.65rem 1.5rem;
+	}
+
+	.extra h2 {
+		margin: 0.4rem 0 0.85rem;
+		text-align: center;
+		font-family: "Libre Baskerville", Palatino, Georgia, serif;
+		font-style: italic;
+		font-weight: 400;
+		font-size: clamp(1.8rem, 4vw, 2.4rem);
+		color: #ee9cf9;
+	}
+
+	.extra .thumbs {
+		padding: 0;
 	}
 
 	.thumbs {

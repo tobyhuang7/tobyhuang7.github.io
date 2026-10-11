@@ -15,6 +15,7 @@ export interface PortfolioSection {
 	projects: ProjectItem[];
 	inNav: boolean;
 	mention?: { before: string; href: string; label: string };
+	extras?: { id: string; title: string; projects: ProjectItem[] }[];
 }
 
 export const sections: PortfolioSection[] = [
@@ -66,7 +67,6 @@ export const sections: PortfolioSection[] = [
 		lede: 'Philosophy, and physics through the observatory.',
 		paragraphs: [
 			'I study Physics and Philosophy at Yale, in Directed Studies. The questions are about what we can know, and about how people should live together.',
-			'The writing is on elections, sortition, and whether music has changed the course of history.',
 		],
 		mention: {
 			before: 'The physics is the sky, at',
@@ -83,12 +83,35 @@ export const sections: PortfolioSection[] = [
 				caption:
 					'Yale’s Directed Studies program: philosophy, literature, and historical-political thought.',
 			},
+		],
+		extras: [
 			{
-				id: 'essays',
-				title: 'Essays',
-				image: '/images/tech-log.svg',
-				caption:
-					'Papers on whether elections represent the will of the people, and on sortition. A John Locke essay on music and history, commended and shortlisted.',
+				id: 'research',
+				title: 'Research',
+				projects: [
+					{
+						// TODO: the site has no formal title or link for this paper, only "whether elections represent the will of the people".
+						id: 'elections',
+						title: 'Whether elections represent the will of the people',
+						image: '/images/placeholder.svg',
+						caption: 'A paper on whether elections represent the will of the people.',
+					},
+					{
+						// TODO: the site has no formal title, description, or link for the sortition paper.
+						id: 'sortition',
+						title: 'Sortition',
+						image: '/images/placeholder.svg',
+						caption: 'A paper on sortition.',
+					},
+					{
+						// TODO: no link or thumbnail for this essay yet.
+						id: 'locke',
+						title: 'John Locke essay on music and history',
+						image: '/images/placeholder.svg',
+						caption:
+							'A John Locke essay on whether music has changed the course of history, commended and shortlisted.',
+					},
+				],
 			},
 		],
 	},
