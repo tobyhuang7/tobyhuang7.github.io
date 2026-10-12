@@ -122,6 +122,30 @@ button:focus-visible {
 	outline-offset: 3px;
 }
 
+.site-foot {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.35rem;
+	min-height: 16rem;
+	margin: 0;
+	padding: 2.5rem 1.25rem 3rem;
+	border-top: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+	text-align: center;
+	font-size: 0.95rem;
+	line-height: 1.5;
+}
+
+.site-foot p {
+	margin: 0;
+}
+
+.site-foot a {
+	color: var(--accent);
+	text-underline-offset: 0.18em;
+}
+
 .skip {
 	position: absolute;
 	left: 1rem;

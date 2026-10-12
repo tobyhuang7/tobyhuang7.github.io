@@ -3,6 +3,10 @@ export interface ProjectItem {
 	title: string;
 	image: string;
 	caption: string;
+	href?: string;
+	fit?: 'contain';
+	/** Concert start, America/New_York, as an ISO 8601 timestamp with a numeric offset. */
+	startsAt?: string;
 }
 
 export interface PortfolioSection {
@@ -13,6 +17,7 @@ export interface PortfolioSection {
 	paragraphs: string[];
 	prompt: string;
 	projects: ProjectItem[];
+	projectsTitle?: string;
 	inNav: boolean;
 	mention?: { before: string; href: string; label: string };
 	extras?: { id: string; title: string; projects: ProjectItem[] }[];
@@ -29,27 +34,35 @@ export const sections: PortfolioSection[] = [
 			'The playing also leaves campus: benefit concerts with student musicians in New York, Los Angeles, Hong Kong, and Beijing.',
 		],
 		prompt: 'Click on a piece below to see more.',
+		projectsTitle: 'Future and Past Shows',
 		inNav: true,
 		projects: [
 			{
-				id: 'symphony',
-				title: 'Yale Symphony Orchestra',
-				image: '/images/symphony.jpg',
+				id: 'opening-concert',
+				title: 'Opening Concert',
+				image: '/images/yso-opening-concert.png',
 				caption:
-					'Violin in the Yale Symphony Orchestra, as a rotating section leader, and director of the 2026 Halloween Show.',
+					'Yale Symphony Orchestra, October 3, 2026, at 7:30pm in Woolsey Hall. Details of this concert and all future concerts can be found here.',
+				href: 'https://www.eventbrite.com/cc/the-yso-2026-27-season-death-and-transfiguration-4853548/',
+				fit: 'contain',
+				startsAt: '2026-10-03T19:30:00-04:00',
+			},
+			{
+				id: 'family-weekend',
+				title: 'Family Weekend Concert',
+				image: '/images/glee-club.jpg',
+				caption:
+					'Yale Glee Club, October 10, 2026, at 7:30pm in Woolsey Hall, with the Yale Wind Ensemble and the Yale Symphony Orchestra. Details can be found here.',
+				href: 'https://gleeclub.yale.edu/events/2026-10-10-yale-college-ensembles-family-weekend-concert',
+				startsAt: '2026-10-10T19:30:00-04:00',
 			},
 			{
 				id: 'halloween',
 				title: 'YSO Halloween Show Movie',
 				image: '/images/halloween-show-poster.webp',
 				caption:
-					'Directed the Symphony’s feature-length Halloween film for an audience of 2,600+ in Woolsey Hall.',
-			},
-			{
-				id: 'choir',
-				title: 'Yale Glee Club',
-				image: '/images/glee-club.jpg',
-				caption: 'Choir with the Yale Glee Club.',
+					'October 31, 2026, at 11:59pm in Woolsey Hall. Directed the Symphony’s feature-length Halloween film for an audience of 2,600+.',
+				startsAt: '2026-10-31T23:59:00-04:00',
 			},
 			{
 				id: 'benefit-concerts',
