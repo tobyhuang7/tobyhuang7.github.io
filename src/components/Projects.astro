@@ -1,6 +1,11 @@
 ---
 import Header from './Header.astro';
-import { nav } from '../data/portfolio';
+import { nav, sections } from '../data/portfolio';
+
+const shows = (sections.find((section) => section.slug === 'music-and-film')?.projects ?? [])
+	.filter((project) => project.startsAt)
+	.slice()
+	.sort((a, b) => Date.parse(a.startsAt!) - Date.parse(b.startsAt!));
 
 const facts = [
 	{ figure: '2,600+', detail: 'in Woolsey Hall for the Halloween Show', href: '/music-and-film' },
@@ -97,6 +102,139 @@ const interests = [
 				</ul>
 			</div>
 		</section>
+
+		{
+			shows.length > 0 && (
+				<section class="upcoming" id="upcoming" hidden aria-labelledby="upcoming-title">
+					<h2 id="upcoming-title" data-rise>Upcoming:</h2>
+					<div class="shows">
+						{
+							shows.map((project) => (
+								<article class="show" data-pop data-starts={project.startsAt}>
+									<a href={`/music-and-film#${project.id}`} aria-label={project.title}>
+										<img src={project.image} alt="" width="1880" height="940" />
+										<span class="thumb-caption">
+											<strong>{project.title}</strong>
+											<span>{project.caption}</span>
+										</span>
+									</a>
+									<p class="countdown" role="timer">
+										<span><strong data-unit="d">0</strong><small data-label="d">days</small></span>
+										<span><strong data-unit="h">0</strong><small data-label="h">hours</small></span>
+										<span><strong data-unit="m">0</strong><small data-label="m">minutes</small></span>
+										<span><strong data-unit="s">0</strong><small data-label="s">seconds</small></span>
+									</p>
+								</article>
+							))
+						}
+					</div>
+					<script is:inline>
+						(function () {
+							var section = document.getElementById('upcoming');
+							if (!section) return;
+							var shows = Array.prototype.slice.call(section.querySelectorAll('.show'));
+							var now = Date.now();
+							var shown = 0;
+							for (var i = 0; i < shows.length; i++) {
+								var time = Date.parse(shows[i].getAttribute('data-starts'));
+								if (isNaN(time) || time < now) shows[i].remove();
+								else shown += 1;
+							}
+							if (!shown) return;
+							section.hidden = false;
+
+							var units = [
+								['d', 86400000, 'day', 'days'],
+								['h', 3600000, 'hour', 'hours'],
+								['m', 60000, 'minute', 'minutes'],
+								['s', 1000, 'second', 'seconds'],
+							];
+
+							function paint(show) {
+								var start = Date.parse(show.getAttribute('data-starts'));
+								var box = show.querySelector('.countdown');
+								var left = start - Date.now();
+								if (left <= 0) {
+									box.textContent = 'Starting now';
+									return false;
+								}
+								var rest = left;
+								for (var n = 0; n < units.length; n++) {
+									var count = Math.floor(rest / units[n][1]);
+									rest -= count * units[n][1];
+									show.querySelector('[data-unit="' + units[n][0] + '"]').textContent = String(count);
+									show.querySelector('[data-label="' + units[n][0] + '"]').textContent =
+										count === 1 ? units[n][2] : units[n][3];
+								}
+								return true;
+							}
+
+							function tick() {
+								var alive = false;
+								var current = section.querySelectorAll('.show');
+								for (var i = 0; i < current.length; i++) {
+									if (paint(current[i])) alive = true;
+								}
+								if (!alive) window.clearInterval(timer);
+							}
+
+							tick();
+							var timer = window.setInterval(tick, 1000);
+
+							var halloween = section.querySelector('a[href$="#halloween"]');
+							if (!halloween || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+							var played = false;
+							halloween.addEventListener('mouseenter', function () {
+								if (played) return;
+								played = true;
+								var show = halloween.closest('.show');
+								var countdown = show.querySelector('.countdown');
+								var width = window.innerWidth;
+								var height = window.innerHeight;
+								var spot = countdown.getBoundingClientRect();
+								var x1 = spot.left + spot.width / 2;
+								var y1 = spot.top + spot.height / 2;
+								var x = x1 + (Math.random() - 0.5) * Math.min(220, width * 0.2);
+								var y = 0;
+								var points = [];
+								var steps = 9;
+								for (var step = 0; step <= steps; step++) {
+									var t = step / steps;
+									var px = step === steps ? x1 : x + (x1 - x) * t + (Math.random() - 0.5) * 70;
+									var py = y + (y1 - y) * t;
+									points.push(px.toFixed(1) + ',' + py.toFixed(1));
+								}
+								var storm = document.createElement('div');
+								storm.className = 'storm';
+								storm.innerHTML =
+									'<div class="storm-flash"></div>' +
+									'<svg viewBox="0 0 ' + width + ' ' + height + '" aria-hidden="true">' +
+									'<polyline class="storm-glow" points="' + points.join(' ') + '"></polyline>' +
+									'<polyline class="storm-bolt" points="' + points.join(' ') + '"></polyline>' +
+									'</svg>';
+								for (var p = 0; p < 16; p++) {
+									var pumpkin = document.createElement('span');
+									pumpkin.className = 'storm-pumpkin';
+									pumpkin.textContent = '🎃';
+									pumpkin.style.left = Math.random() * 94 + '%';
+									pumpkin.style.fontSize = 1.3 + Math.random() * 1.7 + 'rem';
+									pumpkin.style.animationDuration = 1.15 + Math.random() * 1.15 + 's';
+									pumpkin.style.animationDelay = Math.random() * 0.28 + 's';
+									pumpkin.style.setProperty('--spin', Math.random() * 80 - 40 + 'deg');
+									storm.appendChild(pumpkin);
+								}
+								document.body.appendChild(storm);
+								countdown.classList.add('is-struck');
+								window.setTimeout(function () {
+									countdown.classList.remove('is-struck');
+									storm.remove();
+								}, 2600);
+							});
+						})();
+					</script>
+				</section>
+			)
+		}
 
 		<section class="tabs" id="tabs" aria-labelledby="tabs-title">
 			<div class="tabs-inner">
@@ -198,6 +336,205 @@ const interests = [
 	.intro,
 	.tabs {
 		padding: 4.25rem 1.25rem 3.5rem;
+	}
+
+	.upcoming {
+		container-type: inline-size;
+		padding: 0 0.65rem 3.5rem;
+	}
+
+	.upcoming h2 {
+		margin: 0 0 0.9rem;
+		text-align: center;
+		font-family: "Libre Baskerville", Palatino, Georgia, serif;
+		font-style: italic;
+		font-weight: 400;
+		font-size: clamp(2rem, 4vw, 2.7rem);
+		color: #6a7ab4;
+	}
+
+	.upcoming .shows {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1.75rem;
+	}
+
+	.upcoming .show {
+		width: min(100%, 60rem);
+	}
+
+	.upcoming .show a {
+		position: relative;
+		display: block;
+		aspect-ratio: 2 / 1;
+		overflow: hidden;
+		border-radius: 1.15rem;
+		background: #101426;
+	}
+
+	.upcoming .thumb-caption {
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 0.45rem;
+		padding: 1rem 0.9rem;
+		text-align: center;
+		color: #f7f4ff;
+		background: rgb(0 0 0 / 0.46);
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 180ms ease;
+	}
+
+	.upcoming .show a:hover .thumb-caption,
+	.upcoming .show a:focus-visible .thumb-caption {
+		opacity: 1;
+	}
+
+	.upcoming .thumb-caption strong,
+	.upcoming .thumb-caption span {
+		-webkit-text-stroke: 1px #000;
+		paint-order: stroke fill;
+		text-shadow:
+			0 0 3px #000,
+			0 0 8px #000;
+	}
+
+	.upcoming .thumb-caption strong {
+		font-family: "Libre Baskerville", Palatino, Georgia, serif;
+		font-style: italic;
+		font-weight: 400;
+		font-size: clamp(1.2rem, 2.2vw, 1.65rem);
+		line-height: 1.25;
+		color: #f7f4ff;
+	}
+
+	.upcoming .thumb-caption span {
+		font-size: clamp(0.98rem, 1.5vw, 1.15rem);
+		line-height: 1.4;
+	}
+
+	.upcoming .show img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		display: block;
+		transition: transform 180ms ease;
+	}
+
+	.upcoming .show a:hover img,
+	.upcoming .show a:focus-visible img {
+		transform: scale(1.03);
+	}
+
+	.countdown {
+		display: flex;
+		justify-content: center;
+		gap: clamp(0.7rem, 3vw, 2rem);
+		width: fit-content;
+		max-width: 100%;
+		margin: 0.9rem auto 0;
+		padding: 0.8rem clamp(0.7rem, 2.5vw, 1.4rem) 0.7rem;
+		border-radius: 1.15rem;
+		background: #fff;
+		box-shadow: 0 10px 28px rgba(70, 86, 150, 0.1);
+		text-align: center;
+	}
+
+	.countdown strong {
+		display: block;
+		font-family: "Libre Baskerville", Palatino, Georgia, serif;
+		font-style: italic;
+		font-weight: 400;
+		font-variant-numeric: tabular-nums;
+		font-size: clamp(1.7rem, 3vw, 2.35rem);
+		line-height: 1.1;
+		color: #6a7ab4;
+	}
+
+	.countdown small {
+		display: block;
+		margin-top: 0.2rem;
+		font-size: 0.85rem;
+		line-height: 1.3;
+		color: #3a4468;
+	}
+
+	.countdown.is-struck {
+		box-shadow:
+			0 0 0 2px #fff,
+			0 0 32px 10px rgba(190, 220, 255, 0.95);
+	}
+
+	:global(.storm) {
+		position: fixed;
+		inset: 0;
+		z-index: 40;
+		overflow: hidden;
+		pointer-events: none;
+	}
+
+	:global(.storm-flash) {
+		position: absolute;
+		inset: 0;
+		background: #f4f8ff;
+		animation: storm-flash 0.7s ease-out forwards;
+	}
+
+	:global(.storm svg) {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		animation: storm-bolt 0.85s ease-out forwards;
+	}
+
+	:global(.storm-glow),
+	:global(.storm-bolt) {
+		fill: none;
+		stroke-linejoin: round;
+		stroke-linecap: round;
+	}
+
+	:global(.storm-glow) {
+		stroke: #9ec6ff;
+		stroke-width: 14;
+		opacity: 0.75;
+	}
+
+	:global(.storm-bolt) {
+		stroke: #f7fbff;
+		stroke-width: 3.5;
+	}
+
+	:global(.storm-pumpkin) {
+		position: absolute;
+		top: -3.2rem;
+		animation-name: pumpkin-drop;
+		animation-timing-function: cubic-bezier(0.35, 0, 0.75, 0.55);
+		animation-fill-mode: forwards;
+	}
+
+	@keyframes storm-flash {
+		0% { opacity: 0; }
+		14% { opacity: 0.78; }
+		100% { opacity: 0; }
+	}
+
+	@keyframes storm-bolt {
+		0% { opacity: 0; }
+		12% { opacity: 1; }
+		55% { opacity: 1; }
+		100% { opacity: 0; }
+	}
+
+	@keyframes pumpkin-drop {
+		to { transform: translateY(108vh) rotate(var(--spin, 30deg)); }
 	}
 
 	.intro-inner,
@@ -335,6 +672,7 @@ const interests = [
 	}
 
 	:global(body[data-theme='dark']) .intro h2,
+	:global(body[data-theme='dark']) .upcoming h2,
 	:global(body[data-theme='dark']) .tabs h2,
 	:global(body[data-theme='dark']) .facts strong,
 	:global(body[data-theme='dark']) .facts a,
@@ -348,6 +686,19 @@ const interests = [
 
 	:global(body[data-theme='dark']) .facts {
 		border-top-color: rgba(238, 156, 249, 0.35);
+	}
+
+	:global(body[data-theme='dark']) .countdown {
+		background: #101426;
+		box-shadow: none;
+	}
+
+	:global(body[data-theme='dark']) .countdown strong {
+		color: #ee9cf9;
+	}
+
+	:global(body[data-theme='dark']) .countdown small {
+		color: #f7f4ff;
 	}
 
 	:global(body[data-theme='dark']) .tabs a {

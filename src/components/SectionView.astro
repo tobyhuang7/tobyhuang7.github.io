@@ -76,12 +76,32 @@ interface Props {
 
 const { section } = Astro.props;
 const extras = section.extras ?? [];
+const dated = section.projects
+	.filter((project) => project.startsAt)
+	.slice()
+	.sort((a, b) => Date.parse(b.startsAt!) - Date.parse(a.startsAt!));
+const projects = [...dated, ...section.projects.filter((project) => !project.startsAt)];
 const overlays = [
-	...section.projects.map((project) => ({ ...project, close: '#projects' })),
+	...projects.map((project) => ({ ...project, close: '#projects' })),
 	...extras.flatMap((extra) =>
 		extra.projects.map((project) => ({ ...project, close: `#${extra.id}` })),
 	),
-];
+].map((project) => ({
+	...project,
+	captionParts: linkedCaption(project.caption, project.href),
+}));
+
+function linkedCaption(caption: string, href?: string) {
+	const phrase = 'here.';
+	if (!href) return { before: caption, phrase: '', after: '' };
+	const at = caption.lastIndexOf(phrase);
+	if (at < 0) return { before: caption, phrase: '', after: '' };
+	return {
+		before: caption.slice(0, at),
+		phrase,
+		after: caption.slice(at + phrase.length),
+	};
+}
 ---
 
 <div class="section-page">
@@ -102,13 +122,65 @@ const overlays = [
 				<p class="prompt" data-rise>{section.prompt}</p>
 			)}
 		</div>
-		{section.projects.length > 0 && <div class="grid-frame" id="projects">
+		{
+			dated.length > 0 && (
+				<section class="next-show" id="next-show" hidden aria-labelledby="next-show-title">
+					<h2 id="next-show-title" data-rise>Next Show:</h2>
+					<div class="stage">
+						<div class="thumbs">
+							{
+								dated.map((project) => (
+									<a
+										data-pop
+										data-starts={project.startsAt}
+										class:list={{ portrait: isPortrait(project.image), poster: project.fit === 'contain' }}
+										href={`#${project.id}`}
+										aria-label={project.title}
+									>
+										<img src={project.image} alt="" width="800" height="520" />
+										<span class="thumb-caption">
+											<strong>{project.title}</strong>
+											<span>{project.caption}</span>
+										</span>
+									</a>
+								))
+							}
+						</div>
+					</div>
+				</section>
+			)
+		}
+		{projects.length > 0 && (
+			<section class="grid-frame" id="projects" aria-labelledby={section.projectsTitle ? 'projects-title' : undefined}>
+			{section.projectsTitle && <h2 id="projects-title" data-rise>{section.projectsTitle}</h2>}
+			{
+				section.projectsTitle && (
+					<div class="when">
+						<button type="button" id="when-button" aria-expanded="false" aria-controls="when-menu">
+							<span id="when-label">Any time</span>
+							<svg viewBox="0 0 12 12" aria-hidden="true">
+								<path d="M2.2 4.4 6 8.1l3.8-3.7" />
+							</svg>
+						</button>
+						<div id="when-menu" role="menu" hidden>
+							<button type="button" role="menuitemradio" aria-checked="true" data-range="any">Any time</button>
+							<button type="button" role="menuitemradio" aria-checked="false" data-range="upcoming">Upcoming</button>
+							<button type="button" role="menuitemradio" aria-checked="false" data-range="day">Past 24 hours</button>
+							<button type="button" role="menuitemradio" aria-checked="false" data-range="week">Past week</button>
+							<button type="button" role="menuitemradio" aria-checked="false" data-range="month">Past month</button>
+							<button type="button" role="menuitemradio" aria-checked="false" data-range="year">Past year</button>
+						</div>
+					</div>
+				)
+			}
+			{section.projectsTitle && <p class="when-empty" id="when-empty" hidden>No shows in this range.</p>}
 			<div class="thumbs">
 			{
-				section.projects.map((project) => (
+				projects.map((project) => (
 					<a
 						data-pop
-						class:list={{ portrait: isPortrait(project.image) }}
+						data-starts={project.startsAt}
+						class:list={{ portrait: isPortrait(project.image), poster: project.fit === 'contain' }}
 						href={`#${project.id}`}
 						aria-label={project.title}
 					>
@@ -121,7 +193,136 @@ const overlays = [
 				))
 			}
 			</div>
-		</div>}
+		</section>
+		)}
+		<script is:inline>
+			(function () {
+				var featured = document.getElementById('next-show');
+				var grid = document.getElementById('projects');
+				if (featured) {
+					var cards = Array.prototype.slice.call(featured.querySelectorAll('[data-starts]'));
+					var now = Date.now();
+					var next = null;
+					var nextTime = Infinity;
+					for (var i = 0; i < cards.length; i++) {
+						var time = Date.parse(cards[i].getAttribute('data-starts'));
+						if (time >= now && time < nextTime) {
+							next = cards[i];
+							nextTime = time;
+						}
+					}
+					for (var j = 0; j < cards.length; j++) {
+						if (cards[j] !== next) cards[j].remove();
+					}
+					if (next) {
+						featured.hidden = false;
+						var dupe = grid && grid.querySelector('a[href="' + next.getAttribute('href') + '"]');
+						if (dupe) dupe.remove();
+						if (
+							next.getAttribute('href') === '#halloween' &&
+							!window.matchMedia('(prefers-reduced-motion: reduce)').matches
+						) {
+							var played = false;
+							next.addEventListener('mouseenter', function () {
+								if (played) return;
+								played = true;
+								var width = window.innerWidth;
+								var height = window.innerHeight;
+								var spot = next.getBoundingClientRect();
+								var x1 = spot.left + spot.width / 2;
+								var y1 = spot.top + spot.height / 2;
+								var x = x1 + (Math.random() - 0.5) * Math.min(220, width * 0.2);
+								var y = 0;
+								var points = [];
+								var steps = 9;
+								for (var step = 0; step <= steps; step++) {
+									var t = step / steps;
+									var px = step === steps ? x1 : x + (x1 - x) * t + (Math.random() - 0.5) * 70;
+									var py = y + (y1 - y) * t;
+									points.push(px.toFixed(1) + ',' + py.toFixed(1));
+								}
+								var storm = document.createElement('div');
+								storm.className = 'storm';
+								storm.innerHTML =
+									'<div class="storm-flash"></div>' +
+									'<svg viewBox="0 0 ' + width + ' ' + height + '" aria-hidden="true">' +
+									'<polyline class="storm-glow" points="' + points.join(' ') + '"></polyline>' +
+									'<polyline class="storm-bolt" points="' + points.join(' ') + '"></polyline>' +
+									'</svg>';
+								for (var p = 0; p < 16; p++) {
+									var pumpkin = document.createElement('span');
+									pumpkin.className = 'storm-pumpkin';
+									pumpkin.textContent = '🎃';
+									pumpkin.style.left = Math.random() * 94 + '%';
+									pumpkin.style.fontSize = 1.3 + Math.random() * 1.7 + 'rem';
+									pumpkin.style.animationDuration = 1.15 + Math.random() * 1.15 + 's';
+									pumpkin.style.animationDelay = Math.random() * 0.28 + 's';
+									pumpkin.style.setProperty('--spin', Math.random() * 80 - 40 + 'deg');
+									storm.appendChild(pumpkin);
+								}
+								document.body.appendChild(storm);
+								next.classList.add('is-struck');
+								window.setTimeout(function () {
+									next.classList.remove('is-struck');
+									storm.remove();
+								}, 2600);
+							});
+						}
+					}
+				}
+
+				var button = document.getElementById('when-button');
+				var menu = document.getElementById('when-menu');
+				var label = document.getElementById('when-label');
+				var empty = document.getElementById('when-empty');
+				if (!button || !menu || !grid) return;
+
+				function showRange(range) {
+					var now = Date.now();
+					var day = 24 * 60 * 60 * 1000;
+					var limit = range === 'day' ? day : range === 'week' ? 7 * day : range === 'month' ? 30 * day : 365 * day;
+					var shown = 0;
+					Array.prototype.forEach.call(grid.querySelectorAll('.thumbs a'), function (card) {
+						var raw = card.getAttribute('data-starts');
+						var time = raw ? Date.parse(raw) : NaN;
+						var keep = range === 'any';
+						if (!keep && !isNaN(time)) {
+							if (range === 'upcoming') keep = time >= now;
+							else keep = time < now && time >= now - limit;
+						}
+						card.hidden = !keep;
+						if (keep) shown += 1;
+					});
+					if (empty) empty.hidden = shown > 0;
+				}
+
+				function closeMenu() {
+					button.setAttribute('aria-expanded', 'false');
+					menu.hidden = true;
+				}
+
+				button.addEventListener('click', function (event) {
+					event.stopPropagation();
+					var open = button.getAttribute('aria-expanded') === 'true';
+					button.setAttribute('aria-expanded', open ? 'false' : 'true');
+					menu.hidden = open;
+				});
+				menu.addEventListener('click', function (event) {
+					var choice = event.target.closest('button[data-range]');
+					if (!choice) return;
+					Array.prototype.forEach.call(menu.querySelectorAll('button'), function (item) {
+						item.setAttribute('aria-checked', item === choice ? 'true' : 'false');
+					});
+					label.textContent = choice.textContent;
+					showRange(choice.getAttribute('data-range'));
+					closeMenu();
+				});
+				document.addEventListener('click', closeMenu);
+				document.addEventListener('keydown', function (event) {
+					if (event.key === 'Escape') closeMenu();
+				});
+			})();
+		</script>
 		{
 			extras.map((extra) => (
 				<section class="extra" id={extra.id} aria-labelledby={`${extra.id}-title`}>
@@ -130,7 +331,7 @@ const overlays = [
 						{extra.projects.map((project) => (
 							<a
 								data-pop
-								class:list={{ portrait: isPortrait(project.image) }}
+								class:list={{ portrait: isPortrait(project.image), poster: project.fit === 'contain' }}
 								href={`#${project.id}`}
 								aria-label={project.title}
 							>
@@ -157,7 +358,17 @@ const overlays = [
 				</figure>
 				<p class="overlay-caption">
 					<strong>{project.title}</strong>
-					<span>{project.caption}</span>
+					<span>
+						{project.captionParts.before}
+						{
+							project.captionParts.phrase && project.href && (
+								<a href={project.href} target="_blank" rel="noreferrer">
+									{project.captionParts.phrase}
+								</a>
+							)
+						}
+						{project.captionParts.after}
+					</span>
 				</p>
 			</div>
 		))
@@ -219,7 +430,8 @@ const overlays = [
 	}
 
 	.grid-frame,
-	.extra {
+	.extra,
+	.next-show .stage {
 		container-type: inline-size;
 	}
 
@@ -227,7 +439,13 @@ const overlays = [
 		padding: 0 0.65rem 1.5rem;
 	}
 
-	.extra h2 {
+	.next-show {
+		padding: 0 0 1.5rem;
+	}
+
+	.extra h2,
+	.grid-frame h2,
+	.next-show h2 {
 		margin: 0.4rem 0 0.85rem;
 		text-align: center;
 		font-family: "Libre Baskerville", Palatino, Georgia, serif;
@@ -237,8 +455,21 @@ const overlays = [
 		color: var(--accent);
 	}
 
+	.next-show h2 {
+		padding: 0 0.65rem;
+		font-size: clamp(2.15rem, 5vw, 3rem);
+	}
+
 	.grid-frame {
 		padding: 0 0.65rem 0.65rem;
+	}
+
+	.next-show .stage {
+		width: 100%;
+	}
+
+	.grid-frame h2 {
+		margin-bottom: 0.45rem;
 	}
 
 	.thumbs {
@@ -249,6 +480,19 @@ const overlays = [
 		grid-auto-rows: calc((100cqi - (var(--cols) - 1) * var(--gap)) / var(--cols) / 1.414213562);
 		grid-auto-flow: dense;
 		gap: var(--gap);
+	}
+
+	.next-show .thumbs {
+		--cols: 1;
+		grid-auto-rows: calc(100cqi / 2);
+	}
+
+	.next-show .thumbs img {
+		object-fit: contain;
+	}
+
+	.thumbs a[hidden] {
+		display: none;
 	}
 
 	.thumbs a {
@@ -317,6 +561,169 @@ const overlays = [
 		object-fit: cover;
 		object-position: center;
 		display: block;
+	}
+
+	.thumbs a.poster {
+		background: #000;
+	}
+
+	.thumbs a.poster img {
+		object-fit: contain;
+	}
+
+	.next-show .thumbs a.is-struck {
+		box-shadow:
+			0 0 0 2px #fff,
+			0 0 32px 10px rgba(190, 220, 255, 0.95);
+	}
+
+	:global(.storm) {
+		position: fixed;
+		inset: 0;
+		z-index: 40;
+		overflow: hidden;
+		pointer-events: none;
+	}
+
+	:global(.storm-flash) {
+		position: absolute;
+		inset: 0;
+		background: #f4f8ff;
+		animation: storm-flash 0.7s ease-out forwards;
+	}
+
+	:global(.storm svg) {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		animation: storm-bolt 0.85s ease-out forwards;
+	}
+
+	:global(.storm-glow),
+	:global(.storm-bolt) {
+		fill: none;
+		stroke-linejoin: round;
+		stroke-linecap: round;
+	}
+
+	:global(.storm-glow) {
+		stroke: #9ec6ff;
+		stroke-width: 14;
+		opacity: 0.75;
+	}
+
+	:global(.storm-bolt) {
+		stroke: #f7fbff;
+		stroke-width: 3.5;
+	}
+
+	:global(.storm-pumpkin) {
+		position: absolute;
+		top: -3.2rem;
+		animation-name: pumpkin-drop;
+		animation-timing-function: cubic-bezier(0.35, 0, 0.75, 0.55);
+		animation-fill-mode: forwards;
+	}
+
+	@keyframes storm-flash {
+		0% { opacity: 0; }
+		14% { opacity: 0.78; }
+		100% { opacity: 0; }
+	}
+
+	@keyframes storm-bolt {
+		0% { opacity: 0; }
+		12% { opacity: 1; }
+		55% { opacity: 1; }
+		100% { opacity: 0; }
+	}
+
+	@keyframes pumpkin-drop {
+		to { transform: translateY(108vh) rotate(var(--spin, 30deg)); }
+	}
+
+	.when {
+		position: relative;
+		display: flex;
+		justify-content: center;
+		margin: 0 0 1rem;
+	}
+
+	.when > button {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.4rem 0.75rem;
+		border: 0;
+		border-radius: 4px;
+		background: transparent;
+		color: var(--text);
+		font: 400 0.98rem/1.2 "Source Sans 3", "Segoe UI", sans-serif;
+		cursor: pointer;
+	}
+
+	.when > button svg {
+		width: 0.75rem;
+		height: 0.75rem;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.6;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	.when > button:hover,
+	.when > button[aria-expanded='true'] {
+		background: color-mix(in srgb, var(--text) 8%, transparent);
+	}
+
+	.when [role='menu'] {
+		position: absolute;
+		top: calc(100% + 0.2rem);
+		left: 50%;
+		z-index: 5;
+		display: flex;
+		flex-direction: column;
+		min-width: 12.5rem;
+		margin: 0;
+		padding: 0.35rem 0;
+		transform: translateX(-50%);
+		background: var(--bg);
+		border-radius: 8px;
+		box-shadow: 0 4px 18px rgba(20, 16, 24, 0.18);
+	}
+
+	.when [role='menu'][hidden] {
+		display: none;
+	}
+
+	.when [role='menuitemradio'] {
+		padding: 0.5rem 1rem;
+		border: 0;
+		background: transparent;
+		color: var(--text);
+		font: 400 0.98rem/1.3 "Source Sans 3", "Segoe UI", sans-serif;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.when [role='menuitemradio']:hover,
+	.when [role='menuitemradio']:focus-visible {
+		background: color-mix(in srgb, var(--text) 8%, transparent);
+	}
+
+	.when [role='menuitemradio'][aria-checked='true'] {
+		color: var(--accent);
+		font-weight: 600;
+	}
+
+	.when-empty {
+		margin: 0 0.65rem 1rem;
+		text-align: center;
+		font-family: "Libre Baskerville", Palatino, Georgia, serif;
+		font-style: italic;
+		color: var(--text);
 	}
 
 	.thumbs a:hover img,
@@ -405,6 +812,12 @@ const overlays = [
 			0 0 16px #000;
 	}
 
+	.overlay-caption a {
+		color: var(--on-photo, var(--accent));
+		pointer-events: auto;
+		text-underline-offset: 0.18em;
+	}
+
 	.overlay.is-idle .overlay-caption {
 		opacity: 0;
 	}
@@ -432,6 +845,10 @@ const overlays = [
 	@media (max-width: 720px) {
 		.thumbs {
 			--cols: 1;
+		}
+
+		.next-show .stage {
+			width: 100%;
 		}
 
 		.copy p {

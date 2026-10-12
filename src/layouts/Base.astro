@@ -22,7 +22,6 @@ const themeColor = palette ? themeColors[palette][theme] : theme === 'dark' ? '#
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<meta
@@ -66,6 +65,12 @@ const themeColor = palette ? themeColors[palette][theme] : theme === 'dark' ? '#
 		</script>
 		<a class="skip" href="#main">Skip to content</a>
 		<slot />
+		<footer class="site-foot">
+			<p>© {new Date().getFullYear()} Toby Huang</p>
+			<p>
+				<a href="mailto:toby.huang@yale.edu">toby.huang@yale.edu</a>
+			</p>
+		</footer>
 		<script>
 			const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
