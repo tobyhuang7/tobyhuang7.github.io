@@ -1,6 +1,74 @@
 ---
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import type { PortfolioSection } from '../data/portfolio';
 import Header from './Header.astro';
+
+function imageSize(buf: Buffer) {
+	if (buf.length > 24 && buf[0] === 0x89 && buf.toString('ascii', 1, 4) === 'PNG') {
+		return { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20) };
+	}
+	if (buf.length > 30 && buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP') {
+		if (buf.toString('ascii', 12, 16) === 'VP8X') {
+			return { w: 1 + buf.readUIntLE(24, 3), h: 1 + buf.readUIntLE(27, 3) };
+		}
+	}
+	if (buf[0] === 0xff && buf[1] === 0xd8) {
+		let i = 2;
+		let orientation = 1;
+		let size: { w: number; h: number } | undefined;
+		while (i + 9 < buf.length) {
+			if (buf[i] !== 0xff) break;
+			const marker = buf[i + 1];
+			if (marker === 0xd8 || marker === 0xd9) {
+				i += 2;
+				continue;
+			}
+			const len = buf.readUInt16BE(i + 2);
+			if (marker === 0xe1) orientation = jpegOrientation(buf, i + 4, len) ?? orientation;
+			if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
+				size = { h: buf.readUInt16BE(i + 5), w: buf.readUInt16BE(i + 7) };
+			}
+			i += 2 + len;
+		}
+		if (size && orientation >= 5 && orientation <= 8) return { w: size.h, h: size.w };
+		return size;
+	}
+	const viewBox = buf.subarray(0, 800).toString('utf8').match(/viewBox="\s*[\d.]+\s+[\d.]+\s+([\d.]+)\s+([\d.]+)\s*"/);
+	if (viewBox) return { w: Number(viewBox[1]), h: Number(viewBox[2]) };
+	return undefined;
+}
+
+function jpegOrientation(buf: Buffer, start: number, len: number) {
+	const end = start + len - 2;
+	if (end > buf.length || buf.toString('ascii', start, start + 4) !== 'Exif') return undefined;
+	const tiff = start + 6;
+	if (tiff + 8 > end) return undefined;
+	const little = buf.toString('ascii', tiff, tiff + 2) === 'II';
+	const u16 = (offset: number) => (little ? buf.readUInt16LE(offset) : buf.readUInt16BE(offset));
+	const u32 = (offset: number) => (little ? buf.readUInt32LE(offset) : buf.readUInt32BE(offset));
+	if (u16(tiff + 2) !== 42) return undefined;
+	let ifd = tiff + u32(tiff + 4);
+	if (ifd + 2 > end) return undefined;
+	const count = u16(ifd);
+	ifd += 2;
+	for (let n = 0; n < count; n++) {
+		const entry = ifd + n * 12;
+		if (entry + 12 > buf.length) break;
+		if (u16(entry) === 0x0112) return u16(entry + 8);
+	}
+	return undefined;
+}
+
+function isPortrait(src: string) {
+	try {
+		const file = join(process.cwd(), 'public', decodeURIComponent(src).replace(/^\//, ''));
+		const size = imageSize(readFileSync(file));
+		return !!size && size.h > size.w;
+	} catch {
+		return false;
+	}
+}
 
 interface Props {
 	section: PortfolioSection;
@@ -20,37 +88,57 @@ const overlays = [
 	<Header theme="dark" current={section.slug} />
 	<main id="main">
 		<div class="copy">
-			<h1>{section.title}</h1>
-			{section.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+			<h1 data-rise>{section.title}</h1>
+			{section.paragraphs.map((paragraph) => <p data-rise>{paragraph}</p>)}
 			{
 				section.mention && (
-					<p>
+					<p data-rise>
 						{section.mention.before}{' '}
 						<a href={section.mention.href}>{section.mention.label}</a>.
 					</p>
 				)
 			}
 			{(section.projects.length > 0 || extras.length > 0) && section.prompt && (
-				<p class="prompt">{section.prompt}</p>
+				<p class="prompt" data-rise>{section.prompt}</p>
 			)}
 		</div>
-		{section.projects.length > 0 && <div class="thumbs" id="projects">
+		{section.projects.length > 0 && <div class="grid-frame" id="projects">
+			<div class="thumbs">
 			{
 				section.projects.map((project) => (
-					<a href={`#${project.id}`} aria-label={project.title}>
+					<a
+						data-pop
+						class:list={{ portrait: isPortrait(project.image) }}
+						href={`#${project.id}`}
+						aria-label={project.title}
+					>
 						<img src={project.image} alt="" width="800" height="520" />
+						<span class="thumb-caption">
+							<strong>{project.title}</strong>
+							<span>{project.caption}</span>
+						</span>
 					</a>
 				))
 			}
+			</div>
 		</div>}
 		{
 			extras.map((extra) => (
 				<section class="extra" id={extra.id} aria-labelledby={`${extra.id}-title`}>
-					<h2 id={`${extra.id}-title`}>{extra.title}</h2>
+					<h2 id={`${extra.id}-title`} data-rise>{extra.title}</h2>
 					<div class="thumbs">
 						{extra.projects.map((project) => (
-							<a href={`#${project.id}`} aria-label={project.title}>
+							<a
+								data-pop
+								class:list={{ portrait: isPortrait(project.image) }}
+								href={`#${project.id}`}
+								aria-label={project.title}
+							>
 								<img src={project.image} alt="" width="800" height="520" />
+								<span class="thumb-caption">
+									<strong>{project.title}</strong>
+									<span>{project.caption}</span>
+								</span>
 							</a>
 						))}
 					</div>
@@ -65,12 +153,12 @@ const overlays = [
 					Close
 				</a>
 				<figure>
-					<img src={project.image} alt="" width="800" height="520" />
-					<figcaption>
-						<strong>{project.title}</strong>
-						<span>{project.caption}</span>
-					</figcaption>
+					<img src={project.image} alt="" />
 				</figure>
+				<p class="overlay-caption">
+					<strong>{project.title}</strong>
+					<span>{project.caption}</span>
+				</p>
 			</div>
 		))
 	}
@@ -103,7 +191,7 @@ const overlays = [
 		font-family: "Libre Baskerville", Palatino, Georgia, serif;
 		font-style: italic;
 		font-weight: 400;
-		color: #ee9cf9;
+		color: var(--accent);
 	}
 
 	h1 {
@@ -117,17 +205,22 @@ const overlays = [
 		font-family: "Libre Baskerville", Palatino, Georgia, serif;
 		font-size: 1.02rem;
 		line-height: 1.7;
-		color: #f7f4ff;
+		color: var(--text);
 	}
 
 	.copy a {
-		color: #ee9cf9;
+		color: var(--accent);
 		text-underline-offset: 0.28em;
 	}
 
 	.prompt {
 		margin-top: 1.35rem;
 		font-size: 1.2rem;
+	}
+
+	.grid-frame,
+	.extra {
+		container-type: inline-size;
 	}
 
 	.extra {
@@ -141,31 +234,88 @@ const overlays = [
 		font-style: italic;
 		font-weight: 400;
 		font-size: clamp(1.8rem, 4vw, 2.4rem);
-		color: #ee9cf9;
+		color: var(--accent);
 	}
 
-	.extra .thumbs {
-		padding: 0;
-	}
-
-	.thumbs {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-		gap: 0.65rem;
+	.grid-frame {
 		padding: 0 0.65rem 0.65rem;
 	}
 
+	.thumbs {
+		--gap: 0.65rem;
+		--cols: 3;
+		display: grid;
+		grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+		grid-auto-rows: calc((100cqi - (var(--cols) - 1) * var(--gap)) / var(--cols) / 1.414213562);
+		grid-auto-flow: dense;
+		gap: var(--gap);
+	}
+
 	.thumbs a {
+		position: relative;
 		display: block;
-		aspect-ratio: 16 / 10;
+		min-width: 0;
+		min-height: 0;
 		overflow: hidden;
 		background: #101426;
+	}
+
+	.thumb-caption {
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 0.45rem;
+		margin: 0;
+		padding: 1rem 0.9rem;
+		text-align: center;
+		color: #f7f4ff;
+		background: rgb(0 0 0 / 0.46);
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 180ms ease;
+	}
+
+	.thumbs a:hover .thumb-caption,
+	.thumbs a:focus-visible .thumb-caption {
+		opacity: 1;
+	}
+
+	.thumb-caption strong,
+	.thumb-caption span {
+		-webkit-text-stroke: 1px #000;
+		paint-order: stroke fill;
+		text-shadow:
+			0 0 3px #000,
+			0 0 8px #000;
+	}
+
+	.thumb-caption strong {
+		font-family: "Libre Baskerville", Palatino, Georgia, serif;
+		font-style: italic;
+		font-weight: 400;
+		font-size: clamp(1.2rem, 2.2vw, 1.65rem);
+		line-height: 1.25;
+		color: var(--on-photo, var(--accent));
+	}
+
+	.thumb-caption span {
+		font-size: clamp(0.98rem, 1.5vw, 1.15rem);
+		line-height: 1.4;
+	}
+
+	.thumbs a.portrait {
+		grid-row: span 2;
 	}
 
 	.thumbs img {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+		object-position: center;
 		display: block;
 	}
 
@@ -179,40 +329,84 @@ const overlays = [
 	}
 
 	.overlay {
-		display: none;
-	}
-
-	.overlay:target {
 		position: fixed;
 		inset: 0;
 		z-index: 30;
 		display: grid;
 		place-items: center;
-		padding: 4.5rem 1.25rem 1.5rem;
-		background: #0c1022;
+		padding: 0;
+		background: rgb(0 0 0 / 0);
+		opacity: 0;
+		visibility: hidden;
+		pointer-events: none;
+		transition:
+			background-color 0.45s ease,
+			opacity 0.45s ease,
+			visibility 0s linear 0.45s;
+	}
+
+	.overlay:target {
+		background: #000;
+		opacity: 1;
+		visibility: visible;
+		pointer-events: auto;
+		transition:
+			background-color 0.45s ease,
+			opacity 0.45s ease,
+			visibility 0s;
 	}
 
 	.overlay figure {
+		position: absolute;
+		z-index: 1;
+		inset: 0;
 		margin: 0;
-		width: min(60rem, 100%);
-		background: #12162c;
-		padding: 0.7rem 0.7rem 1rem;
 	}
 
 	.overlay img {
+		position: absolute;
+		top: 50%;
+		left: 50%;
 		display: block;
-		width: 100%;
-		max-height: 68vh;
-		object-fit: cover;
-		background: #101426;
+		width: auto;
+		height: auto;
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: contain;
+		transform: translate(-50%, -50%);
 	}
 
-	.overlay figcaption {
+	.overlay-caption {
+		position: absolute;
+		z-index: 2;
+		right: 0;
+		bottom: 0;
+		left: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 0.25rem;
-		margin-top: 0.8rem;
+		align-items: center;
+		gap: 0.35rem;
+		margin: 0;
+		padding: 2.6rem 1.25rem 1.2rem;
+		text-align: center;
 		color: #f7f4ff;
+		opacity: 1;
+		pointer-events: none;
+		transition: opacity 0.8s ease;
+	}
+
+	.overlay-caption strong,
+	.overlay-caption span {
+		-webkit-text-stroke: 2px #000;
+		paint-order: stroke fill;
+		text-shadow:
+			0 0 3px #000,
+			0 0 8px #000,
+			0 0 16px #000;
+	}
+
+	.overlay.is-idle .overlay-caption {
+		opacity: 0;
 	}
 
 	.overlay strong {
@@ -220,14 +414,15 @@ const overlays = [
 		font-style: italic;
 		font-weight: 400;
 		font-size: 1.45rem;
-		color: #ee9cf9;
+		color: var(--on-photo, var(--accent));
 	}
 
 	.overlay-close {
 		position: absolute;
+		z-index: 2;
 		top: 1.1rem;
 		right: 1.25rem;
-		color: #ee9cf9;
+		color: var(--on-photo, var(--accent));
 		font-family: "Libre Baskerville", Palatino, Georgia, serif;
 		font-style: italic;
 		text-decoration: none;
@@ -236,7 +431,7 @@ const overlays = [
 
 	@media (max-width: 720px) {
 		.thumbs {
-			grid-template-columns: 1fr;
+			--cols: 1;
 		}
 
 		.copy p {
@@ -245,8 +440,54 @@ const overlays = [
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.thumbs img {
+		.thumbs img,
+		.thumb-caption,
+		.overlay,
+		.overlay-caption {
 			transition: none;
+		}
+
+		.overlay.is-idle .overlay-caption {
+			opacity: 1;
 		}
 	}
 </style>
+
+<script>
+	const idleDelay = 3000;
+	const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	let idleTimer = 0;
+
+	function openOverlay() {
+		return document.querySelector<HTMLElement>('.overlay:target');
+	}
+
+	function wake() {
+		const overlay = openOverlay();
+		window.clearTimeout(idleTimer);
+		if (!overlay || reduceMotion) return;
+		overlay.classList.remove('is-idle');
+		idleTimer = window.setTimeout(() => overlay.classList.add('is-idle'), idleDelay);
+	}
+
+	function closeOverlay() {
+		const overlay = openOverlay();
+		const href = overlay?.querySelector('a.overlay-close')?.getAttribute('href');
+		if (href) location.hash = href;
+	}
+
+	window.addEventListener('hashchange', wake);
+	window.addEventListener('pointermove', wake);
+	window.addEventListener('keydown', (event) => {
+		if (event.key !== 'Escape' || !openOverlay()) return;
+		event.preventDefault();
+		closeOverlay();
+	});
+	document.addEventListener('click', (event) => {
+		const overlay = openOverlay();
+		if (!overlay || !(event.target instanceof Node) || !overlay.contains(event.target)) return;
+		const figure = overlay.querySelector('figure');
+		if (event.target === overlay || event.target === figure) closeOverlay();
+	});
+	wake();
+</script>

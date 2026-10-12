@@ -3,7 +3,7 @@ import Header from './Header.astro';
 import { nav } from '../data/portfolio';
 
 const facts = [
-	{ figure: '2,600+', detail: 'in Woolsey Hall for the Halloween film' },
+	{ figure: '2,600+', detail: 'in Woolsey Hall for the Halloween Show', href: '/music-and-film' },
 	{ figure: '4+', detail: 'cities for organized benefit concerts' },
 	{ figure: '12', detail: 'years playing the violin' },
 	{
@@ -28,29 +28,29 @@ const interests = [
 	<main id="main">
 		<section class="hi" id="hi" aria-labelledby="greeting">
 			<div class="panel">
-				<figure class="shot side">
+				<figure class="shot side" data-pop>
 					<img
-						src="/images/hero-camera.svg"
-						alt="A green jacket, pale wall, and a camera."
-						width="640"
-						height="900"
+						src="/images/IMG_1058.jpg"
+						alt="Toby sitting on a bench in a green hoodie, holding a camera."
+						width="4412"
+						height="6618"
 					/>
 				</figure>
-				<figure class="shot center">
+				<figure class="shot center" data-pop>
 					<img
-						src="/images/hero-stage.svg"
-						alt="Warm stage light, a tan coat, and an orange vest."
-						width="760"
-						height="860"
+						src="/images/130581791769116_.pic_hd.jpg"
+						alt="Toby in a light blue patterned shirt, standing indoors."
+						width="5472"
+						height="3080"
 					/>
 					<h1 id="greeting">Hi, I’m Toby.</h1>
 				</figure>
-				<figure class="shot side">
+				<figure class="shot side violin" data-pop>
 					<img
-						src="/images/hero-violin.svg"
-						alt="A violin and music stand on a dark stage."
-						width="640"
-						height="900"
+						src="/images/BKS-308-X4.jpg"
+						alt="Toby playing violin on a dark stage, beside a music stand."
+						width="1366"
+						height="2048"
 					/>
 				</figure>
 			</div>
@@ -58,15 +58,15 @@ const interests = [
 
 		<section class="intro" id="introduction" aria-labelledby="intro-title">
 			<div class="intro-inner">
-				<h2 id="intro-title">Introduction</h2>
-				<p>
+				<h2 id="intro-title" data-rise>Introduction</h2>
+				<p data-rise>
 					I’m Toby Huang, a Yale student in Physics and Philosophy. I play in the
 					Symphony Orchestra, direct its Halloween film, and founded an observatory
 					and a series of benefit concerts.
 				</p>
-				<p>A few facts below. The tabs after them open the work.</p>
+				<p data-rise>A few facts below. The tabs after them open the work.</p>
 				{/* TODO: Toby to review wording */}
-				<p>
+				<p data-rise>
 					I study what we can know, and how people should live together, and I
 					start things and get them running: the observatory, the benefit
 					concerts, and the film.
@@ -74,14 +74,25 @@ const interests = [
 				<ul class="facts">
 					{
 						facts.map((fact) => (
-							<li>
+							<li data-rise>
 								<strong>{fact.figure}</strong>
-								<span>{fact.detail}</span>
+								<span>
+									{
+										fact.href ? (
+											<>
+												{fact.detail.replace('Halloween Show', '')}
+												<a href={fact.href}>Halloween Show</a>
+											</>
+										) : (
+											fact.detail
+										)
+									}
+								</span>
 							</li>
 						))
 					}
 				</ul>
-				<ul class="interests" aria-label="Skills and interests">
+				<ul class="interests" aria-label="Skills and interests" data-rise>
 					{interests.map((interest) => <li>{interest}</li>)}
 				</ul>
 			</div>
@@ -89,11 +100,11 @@ const interests = [
 
 		<section class="tabs" id="tabs" aria-labelledby="tabs-title">
 			<div class="tabs-inner">
-				<h2 id="tabs-title">Pick a tab</h2>
+				<h2 id="tabs-title" data-rise>Pick a tab</h2>
 				<ul>
 					{
 						nav.map((section) => (
-							<li>
+							<li data-rise>
 								<a href={`/${section.slug}`}>
 									<span>{section.label}</span>
 									<small>{section.lede}</small>
@@ -140,32 +151,37 @@ const interests = [
 		object-fit: cover;
 	}
 
+	.shot::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		background: rgba(149, 172, 248, 0.1);
+		pointer-events: none;
+	}
+
+	.shot.violin img {
+		object-position: left top;
+		transform: scale(1.3);
+		transform-origin: left top;
+	}
+
 	.shot.side {
 		height: min(72vh, 40rem);
 	}
 
 	.shot.center {
-		height: min(52vh, 28rem);
+		height: min(58vh, 32rem);
 	}
 
-	.shot.center::after {
-		content: "";
-		position: absolute;
-		inset: 0;
-		background: linear-gradient(
-			90deg,
-			transparent 0%,
-			rgba(22, 16, 36, 0.28) 42%,
-			rgba(22, 16, 36, 0.28) 58%,
-			transparent 100%
-		);
-		pointer-events: none;
+	.shot.center img {
+		object-position: center 26%;
 	}
 
 	h1 {
 		position: absolute;
 		inset: 0;
-		z-index: 1;
+		z-index: 2;
 		display: grid;
 		place-items: center;
 		margin: 0;
@@ -241,6 +257,11 @@ const interests = [
 		line-height: 1.45;
 	}
 
+	.facts a {
+		color: #6a7ab4;
+		text-underline-offset: 0.18em;
+	}
+
 	.interests {
 		display: flex;
 		flex-wrap: wrap;
@@ -264,9 +285,10 @@ const interests = [
 	.tabs ul {
 		list-style: none;
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(15.5rem, 1fr));
+		grid-template-columns: 1fr 1fr;
 		gap: 0.85rem;
-		margin: 1.6rem 0 0;
+		width: min(100%, 36rem);
+		margin: 1.6rem auto 0;
 		padding: 0;
 	}
 
@@ -275,7 +297,8 @@ const interests = [
 		flex-direction: column;
 		justify-content: flex-start;
 		gap: 0.65rem;
-		min-height: 9.2rem;
+		aspect-ratio: 1;
+		min-height: 11rem;
 		padding: 1.15rem 1.1rem 1rem;
 		background: #fff;
 		color: #5d6da8;
@@ -307,6 +330,167 @@ const interests = [
 		color: #f7f4ff;
 	}
 
+	:global(body[data-theme='dark']) .panel {
+		background: #242b4e;
+	}
+
+	:global(body[data-theme='dark']) .intro h2,
+	:global(body[data-theme='dark']) .tabs h2,
+	:global(body[data-theme='dark']) .facts strong,
+	:global(body[data-theme='dark']) .facts a,
+	:global(body[data-theme='dark']) .interests li:not(:last-child)::after {
+		color: #ee9cf9;
+	}
+
+	:global(body[data-theme='dark']) .interests {
+		color: #f7f4ff;
+	}
+
+	:global(body[data-theme='dark']) .facts {
+		border-top-color: rgba(238, 156, 249, 0.35);
+	}
+
+	:global(body[data-theme='dark']) .tabs a {
+		background: #101426;
+		color: #ee9cf9;
+		box-shadow: none;
+	}
+
+	:global(body[data-theme='dark']) .tabs a small {
+		color: #f7f4ff;
+	}
+
+	:global(body[data-theme='dark']) .tabs a:hover,
+	:global(body[data-theme='dark']) .tabs a:focus-visible {
+		background: #95acf8;
+		color: #181d3b;
+	}
+
+	:global(body[data-theme='dark']) .tabs a:hover small,
+	:global(body[data-theme='dark']) .tabs a:focus-visible small {
+		color: #181d3b;
+	}
+
+	.tabs a[href='/music-and-film'] {
+		background: #f8efe4;
+		color: #8d3a4c;
+	}
+
+	.tabs a[href='/music-and-film'] small {
+		color: #3a2a2c;
+	}
+
+	.tabs a[href='/music-and-film']:hover,
+	.tabs a[href='/music-and-film']:focus-visible {
+		background: #221318;
+		color: #e4b15a;
+	}
+
+	.tabs a[href='/music-and-film']:hover small,
+	.tabs a[href='/music-and-film']:focus-visible small {
+		color: #f6efe6;
+	}
+
+	.tabs a[href='/writing'] {
+		background: #e7eee6;
+		color: #1e3d32;
+	}
+
+	.tabs a[href='/writing'] small {
+		color: #243028;
+	}
+
+	.tabs a[href='/writing']:hover,
+	.tabs a[href='/writing']:focus-visible {
+		background: #141c18;
+		color: #e4d3b0;
+	}
+
+	.tabs a[href='/writing']:hover small,
+	.tabs a[href='/writing']:focus-visible small {
+		color: #f3efe6;
+	}
+
+	.tabs a[href='/photography'] {
+		background: #e7e5e1;
+		color: #1c1b19;
+	}
+
+	.tabs a[href='/photography'] small {
+		color: #3d3b38;
+	}
+
+	.tabs a[href='/photography']:hover,
+	.tabs a[href='/photography']:focus-visible {
+		background: #121212;
+		color: #d4cfc6;
+	}
+
+	.tabs a[href='/photography']:hover small,
+	.tabs a[href='/photography']:focus-visible small {
+		color: #f2f0ec;
+	}
+
+	:global(body[data-theme='dark']) .tabs a[href='/music-and-film'] {
+		background: #221318;
+		color: #e4b15a;
+	}
+
+	:global(body[data-theme='dark']) .tabs a[href='/music-and-film'] small {
+		color: #f6efe6;
+	}
+
+	:global(body[data-theme='dark']) .tabs a[href='/music-and-film']:hover,
+	:global(body[data-theme='dark']) .tabs a[href='/music-and-film']:focus-visible {
+		background: #e4b15a;
+		color: #221318;
+	}
+
+	:global(body[data-theme='dark']) .tabs a[href='/music-and-film']:hover small,
+	:global(body[data-theme='dark']) .tabs a[href='/music-and-film']:focus-visible small {
+		color: #221318;
+	}
+
+	:global(body[data-theme='dark']) .tabs a[href='/writing'] {
+		background: #141c18;
+		color: #e4d3b0;
+	}
+
+	:global(body[data-theme='dark']) .tabs a[href='/writing'] small {
+		color: #f3efe6;
+	}
+
+	:global(body[data-theme='dark']) .tabs a[href='/writing']:hover,
+	:global(body[data-theme='dark']) .tabs a[href='/writing']:focus-visible {
+		background: #e4d3b0;
+		color: #141c18;
+	}
+
+	:global(body[data-theme='dark']) .tabs a[href='/writing']:hover small,
+	:global(body[data-theme='dark']) .tabs a[href='/writing']:focus-visible small {
+		color: #141c18;
+	}
+
+	:global(body[data-theme='dark']) .tabs a[href='/photography'] {
+		background: #121212;
+		color: #d4cfc6;
+	}
+
+	:global(body[data-theme='dark']) .tabs a[href='/photography'] small {
+		color: #f2f0ec;
+	}
+
+	:global(body[data-theme='dark']) .tabs a[href='/photography']:hover,
+	:global(body[data-theme='dark']) .tabs a[href='/photography']:focus-visible {
+		background: #d4cfc6;
+		color: #121212;
+	}
+
+	:global(body[data-theme='dark']) .tabs a[href='/photography']:hover small,
+	:global(body[data-theme='dark']) .tabs a[href='/photography']:focus-visible small {
+		color: #121212;
+	}
+
 	@media (max-width: 860px) {
 		.panel {
 			grid-template-columns: 1fr;
@@ -315,7 +499,7 @@ const interests = [
 
 		.shot.center {
 			order: -1;
-			height: min(62vw, 22rem);
+			height: min(92vw, 34rem);
 		}
 
 		.shot.side {
@@ -324,6 +508,11 @@ const interests = [
 
 		.facts {
 			grid-template-columns: 1fr 1fr;
+		}
+
+		.tabs a {
+			aspect-ratio: auto;
+			min-height: 9rem;
 		}
 	}
 </style>

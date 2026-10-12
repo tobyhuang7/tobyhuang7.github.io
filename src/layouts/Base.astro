@@ -4,13 +4,21 @@ import '../styles/global.css';
 interface Props {
 	title?: string;
 	theme?: 'light' | 'dark';
+	palette?: 'music' | 'science' | 'writing' | 'photography';
 }
 
-const { title = 'Toby’s Portfolio', theme = 'light' } = Astro.props;
+const { title = 'Toby Huang', theme = 'light', palette } = Astro.props;
+const themeColors = {
+	music: { light: '#f8efe4', dark: '#221318' },
+	science: { light: '#e4e9fd', dark: '#181d3b' },
+	writing: { light: '#e7eee6', dark: '#141c18' },
+	photography: { light: '#e7e5e1', dark: '#121212' },
+} as const;
+const themeColor = palette ? themeColors[palette][theme] : theme === 'dark' ? '#181d3b' : '#e4e9fd';
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme={theme} data-palette={palette}>
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -21,7 +29,7 @@ const { title = 'Toby’s Portfolio', theme = 'light' } = Astro.props;
 			name="description"
 			content="Toby’s portfolio of violin, theater and film, astrophotography, photography, and technical projects."
 		/>
-		<meta name="theme-color" content={theme === 'dark' ? '#181d3b' : '#e4e9fd'} />
+		<meta name="theme-color" content={themeColor} />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
@@ -29,9 +37,74 @@ const { title = 'Toby’s Portfolio', theme = 'light' } = Astro.props;
 			rel="stylesheet"
 		/>
 		<title>{title}</title>
+		<script is:inline>
+			document.documentElement.classList.add('js');
+		</script>
+		<style is:inline>
+			html.js [data-rise]:not(.is-in),
+			html.js [data-pop]:not(.is-in) {
+				opacity: 0;
+			}
+		</style>
+		<script is:inline>
+			try {
+				var savedTheme = localStorage.getItem('theme');
+				if (savedTheme === 'light' || savedTheme === 'dark') {
+					document.documentElement.dataset.theme = savedTheme;
+				}
+			} catch (error) {}
+		</script>
 	</head>
 	<body data-theme={theme}>
+		<script is:inline>
+			try {
+				var savedTheme = localStorage.getItem('theme');
+				if (savedTheme === 'light' || savedTheme === 'dark') {
+					document.body.dataset.theme = savedTheme;
+				}
+			} catch (error) {}
+		</script>
 		<a class="skip" href="#main">Skip to content</a>
 		<slot />
+		<script>
+			const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+			function show(el: HTMLElement, delay: number) {
+				if (reduceMotion) {
+					el.classList.add('is-in');
+					return;
+				}
+				el.style.animationDelay = `${delay}ms`;
+				el.classList.add('is-in');
+			}
+
+			document.querySelectorAll<HTMLElement>('[data-rise]').forEach((el, index) => {
+				show(el, Math.min(index * 60, 480));
+			});
+
+			document.querySelectorAll<HTMLElement>('[data-pop]').forEach((el, index) => {
+				const img = el.querySelector('img');
+				let shown = false;
+				const go = () => {
+					if (shown) return;
+					shown = true;
+					show(el, Math.min(index * 50, 400));
+				};
+				if (!img) {
+					go();
+					return;
+				}
+				if (typeof img.decode === 'function') {
+					img.decode().then(go).catch(go);
+					return;
+				}
+				if (img.complete) {
+					go();
+					return;
+				}
+				img.addEventListener('load', go, { once: true });
+				img.addEventListener('error', go, { once: true });
+			});
+		</script>
 	</body>
 </html>

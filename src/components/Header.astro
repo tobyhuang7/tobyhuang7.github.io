@@ -10,7 +10,7 @@ const { theme, current } = Astro.props;
 ---
 
 <header class:list={['site-header', theme]}>
-	<a class="brand" href="/">Toby’s Portfolio</a>
+	<a class="brand" href="/">Toby Huang</a>
 	<nav aria-label="Portfolio sections">
 		{
 			nav.map((item) => (
@@ -23,6 +23,31 @@ const { theme, current } = Astro.props;
 			))
 		}
 	</nav>
+	<button
+		class="theme-toggle"
+		type="button"
+		aria-pressed={theme === 'dark' ? 'true' : 'false'}
+		aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+	>
+		<svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+			<path
+				d="M21 14.5A8.5 8.5 0 1 1 9.5 3a7 7 0 0 0 11.5 11.5z"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="1.6"
+				stroke-linejoin="round"></path>
+		</svg>
+		<svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+			<circle cx="12" cy="12" r="3.4" fill="none" stroke="currentColor" stroke-width="1.6"
+			></circle>
+			<path
+				d="M12 2.4v2.3M12 19.3v2.3M2.4 12h2.3M19.3 12h2.3M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="1.6"
+				stroke-linecap="round"></path>
+		</svg>
+	</button>
 	<a class="corner" href="/" aria-label="Home">
 		<span aria-hidden="true">×</span>
 	</a>
@@ -30,13 +55,41 @@ const { theme, current } = Astro.props;
 
 <script>
 	const header = document.querySelector('.site-header');
+	const toggle = header?.querySelector<HTMLButtonElement>('.theme-toggle');
 
 	function updateHeader() {
 		header?.classList.toggle('is-stuck', window.scrollY > 12);
 	}
 
+	function syncTheme() {
+		const dark = document.body.dataset.theme === 'dark';
+		header?.classList.toggle('dark', dark);
+		header?.classList.toggle('light', !dark);
+		if (!toggle) return;
+		toggle.setAttribute('aria-pressed', dark ? 'true' : 'false');
+		toggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+		document
+			.querySelector('meta[name="theme-color"]')
+			?.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--header').trim());
+	}
+
 	updateHeader();
+	syncTheme();
 	window.addEventListener('scroll', updateHeader, { passive: true });
+	if (toggle && toggle.dataset.bound !== 'true') {
+		toggle.dataset.bound = 'true';
+		toggle.addEventListener('click', () => {
+			const next = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+			document.body.dataset.theme = next;
+			document.documentElement.dataset.theme = next;
+			try {
+				localStorage.setItem('theme', next);
+			} catch {
+				/* keep the choice for this page if storage is blocked */
+			}
+			syncTheme();
+		});
+	}
 </script>
 
 <style>
@@ -97,36 +150,92 @@ const { theme, current } = Astro.props;
 		text-underline-offset: 0.28em;
 	}
 
-	.light {
-		background-color: #e4e9fd;
+	.light,
+	:global(html[data-theme='light']) .site-header {
+		background-color: var(--header);
 	}
 
-	.light.is-stuck {
-		background-color: rgba(228, 233, 253, 0.72);
+	.light.is-stuck,
+	:global(html[data-theme='light']) .site-header.is-stuck {
+		background-color: var(--header-stuck);
 		-webkit-backdrop-filter: blur(16px);
 		backdrop-filter: blur(16px);
-		box-shadow: 0 10px 24px rgba(55, 68, 120, 0.28);
+		box-shadow: 0 10px 24px var(--shadow);
 	}
 
 	.light .brand,
-	.light nav a {
-		color: #6a7ab4;
+	.light nav a,
+	:global(html[data-theme='light']) .brand,
+	:global(html[data-theme='light']) nav a {
+		color: var(--accent);
 	}
 
-	.dark {
-		background-color: #181d3b;
+	.dark,
+	:global(html[data-theme='dark']) .site-header {
+		background-color: var(--header);
 	}
 
-	.dark.is-stuck {
-		background-color: rgba(24, 29, 59, 0.72);
+	.dark.is-stuck,
+	:global(html[data-theme='dark']) .site-header.is-stuck {
+		background-color: var(--header-stuck);
 		-webkit-backdrop-filter: blur(16px);
 		backdrop-filter: blur(16px);
-		box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+		box-shadow: 0 12px 28px var(--shadow);
 	}
 
 	.dark .brand,
-	.dark nav a {
-		color: #ee9cf9;
+	.dark nav a,
+	:global(html[data-theme='dark']) .brand,
+	:global(html[data-theme='dark']) nav a {
+		color: var(--accent);
+	}
+
+	.theme-toggle {
+		display: grid;
+		place-items: center;
+		flex: none;
+		width: 2.4rem;
+		height: 2.4rem;
+		margin-left: 0.35rem;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		color: inherit;
+		cursor: pointer;
+	}
+
+	.light .theme-toggle,
+	.dark .theme-toggle,
+	:global(html[data-theme='light']) .theme-toggle,
+	:global(html[data-theme='dark']) .theme-toggle {
+		color: var(--accent);
+	}
+
+	.theme-toggle svg {
+		width: 1.35rem;
+		height: 1.35rem;
+	}
+
+	.icon-sun {
+		display: none;
+	}
+
+	.dark .icon-sun,
+	:global(html[data-theme='dark']) .icon-sun {
+		display: block;
+	}
+
+	.dark .icon-moon,
+	:global(html[data-theme='dark']) .icon-moon {
+		display: none;
+	}
+
+	:global(html[data-theme='light']) .icon-sun {
+		display: none;
+	}
+
+	:global(html[data-theme='light']) .icon-moon {
+		display: block;
 	}
 
 	.corner {
@@ -173,6 +282,14 @@ const { theme, current } = Astro.props;
 
 		nav {
 			justify-content: flex-start;
+		}
+
+		.theme-toggle {
+			position: absolute;
+			top: 0.72rem;
+			right: 4.85rem;
+			z-index: 3;
+			margin-left: 0;
 		}
 	}
 </style>

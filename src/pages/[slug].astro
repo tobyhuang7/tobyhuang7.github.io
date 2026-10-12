@@ -16,8 +16,18 @@ interface Props {
 }
 
 const { section } = Astro.props;
+const paletteBySlug = {
+	'music-and-film': 'music',
+	'science-and-observatory': 'science',
+	writing: 'writing',
+	photography: 'photography',
+} as const;
 ---
 
-<Base title={`${section.label} · Toby’s Portfolio`} theme="dark">
+<Base
+	title={`${section.label} · Toby Huang`}
+	theme="dark"
+	palette={paletteBySlug[section.slug as keyof typeof paletteBySlug]}
+>
 	<SectionView section={section} />
 </Base>
