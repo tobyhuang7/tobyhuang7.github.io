@@ -7,6 +7,9 @@ export interface ProjectItem {
 	fit?: 'contain';
 	/** Concert start, America/New_York, as an ISO 8601 timestamp with a numeric offset. */
 	startsAt?: string;
+	/** Separate instant for a ticket countdown, America/New_York, with a numeric offset. */
+	ticketsAt?: string;
+	ticketsHref?: string;
 }
 
 export interface PortfolioSection {
@@ -38,6 +41,66 @@ export const sections: PortfolioSection[] = [
 		inNav: true,
 		projects: [
 			{
+				id: 'yso-opening-2025',
+				title: 'YSO Opening Concert',
+				image: '/images/yso-2025-opening.jpg',
+				caption:
+					'Yale Symphony Orchestra, September 27, 2025, at 7:30pm in Woolsey Hall. Details can be found here.',
+				href: 'https://www.eventbrite.com/e/yso-opening-concert-tickets-1488791047099',
+				fit: 'contain',
+				startsAt: '2025-09-27T19:30:00-04:00',
+			},
+			{
+				id: 'halloween-2025',
+				title: '2025 YSO Halloween Show',
+				image: '/images/yso-2025-halloween.jpg',
+				caption:
+					'Yale Symphony Orchestra, October 31, 2025, at 11:59pm in Woolsey Hall. Details can be found here.',
+				href: 'https://www.eventbrite.com/e/2025-yso-halloween-show-tickets-1500234996259',
+				fit: 'contain',
+				startsAt: '2025-10-31T23:59:00-04:00',
+			},
+			{
+				id: 'nature-1904',
+				title: 'Nature and Humanity in 1904',
+				image: '/images/yso-nature-1904.jpg',
+				caption:
+					'Yale Symphony Orchestra, November 20, 2025, at 7:30pm in Woolsey Hall. Details can be found here.',
+				href: 'https://www.eventbrite.com/e/nature-and-humanity-in-1904-tickets-1488892620909',
+				fit: 'contain',
+				startsAt: '2025-11-20T19:30:00-05:00',
+			},
+			{
+				id: 'love-death-1830',
+				title: 'Love and Death in 1830',
+				image: '/images/yso-love-death-1830.jpg',
+				caption:
+					'Yale Symphony Orchestra, February 14, 2026, at 7:30pm in Woolsey Hall. Details can be found here.',
+				href: 'https://www.eventbrite.com/e/love-and-death-in-1830-tickets-1500061788189',
+				fit: 'contain',
+				startsAt: '2026-02-14T19:30:00-05:00',
+			},
+			{
+				id: 'mahler-resurrection',
+				title: 'Mahler Symphony No. 2 “Resurrection”',
+				image: '/images/yso-mahler-resurrection.jpg',
+				caption:
+					'Yale Symphony Orchestra, March 28, 2026, at 7:30pm in Woolsey Hall. Details can be found here.',
+				href: 'https://www.eventbrite.com/e/mahler-symphony-no-2-resurrection-celebrating-60-years-tickets-1500070203359',
+				fit: 'contain',
+				startsAt: '2026-03-28T19:30:00-04:00',
+			},
+			{
+				id: 'masses-rites',
+				title: 'Masses, Rites, and Folklore',
+				image: '/images/yso-masses-rites.jpg',
+				caption:
+					'Yale Symphony Orchestra with the Yale Glee Club, April 18, 2026, at 7:30pm in Woolsey Hall. Details can be found here.',
+				href: 'https://www.eventbrite.com/e/masses-rites-and-folklore-tickets-1500226430639',
+				fit: 'contain',
+				startsAt: '2026-04-18T19:30:00-04:00',
+			},
+			{
 				id: 'opening-concert',
 				title: 'Opening Concert',
 				image: '/images/yso-opening-concert.png',
@@ -57,12 +120,88 @@ export const sections: PortfolioSection[] = [
 				startsAt: '2026-10-10T19:30:00-04:00',
 			},
 			{
+				id: 'glee-reunion',
+				title: '165th Anniversary Reunion Concert',
+				image: '/images/glee-165th-reunion.jpg',
+				caption:
+					'Yale Glee Club, October 17, 2026, at 4:00pm in Woolsey Hall. Details can be found here.',
+				href: 'https://gleeclub.yale.edu/events/2026-10-17-yale-glee-club-165th-anniversary-reunion-concert',
+				fit: 'contain',
+				startsAt: '2026-10-17T16:00:00-04:00',
+			},
+			{
 				id: 'halloween',
 				title: 'YSO Halloween Show Movie',
 				image: '/images/halloween-show-poster.webp',
 				caption:
 					'October 31, 2026, at 11:59pm in Woolsey Hall. Directed the Symphony’s feature-length Halloween film for an audience of 2,600+.',
 				startsAt: '2026-10-31T23:59:00-04:00',
+				ticketsAt: '2026-10-16T22:59:00-04:00',
+				ticketsHref: 'https://www.eventbrite.com/e/2026-yso-halloween-show-tickets-1990503326031',
+			},
+			{
+				id: 'choral-fest',
+				title: 'Choral Fest: Canons and Rounds',
+				image: '/images/glee-choral-fest.jpg',
+				caption:
+					'Chamber Singers of the Yale Glee Club, November 5, 2026, at 5:15pm at the Beinecke Rare Book and Manuscript Library. Details can be found here.',
+				href: 'https://gleeclub.yale.edu/events/2026-11-05-choral-fest-canons-and-rounds',
+				fit: 'contain',
+				startsAt: '2026-11-05T17:15:00-05:00',
+			},
+			{
+				id: 'yale-princeton',
+				title: 'Yale Princeton Joint Glee Club Concert',
+				image: '/images/glee-club.jpg',
+				caption:
+					'Yale Glee Club with the Princeton University Glee Club, November 13, 2026, at 7:30pm in Woolsey Hall. Details can be found here.',
+				href: 'https://gleeclub.yale.edu/events/2026-11-13-yale-princeton-joint-glee-club-concert',
+				startsAt: '2026-11-13T19:30:00-05:00',
+			},
+			{
+				id: 'spirits-america',
+				title: 'Spirits of America at 250',
+				image: '/images/yso-spirits-america.jpg',
+				caption:
+					'Yale Symphony Orchestra, November 14, 2026, at 7:30pm in Woolsey Hall. Details can be found here.',
+				href: 'https://www.eventbrite.com/e/spirits-of-america-at-250-tickets-1990504037158',
+				startsAt: '2026-11-14T19:30:00-05:00',
+			},
+			{
+				id: 'messiah',
+				title: 'Messiah Audience Singalong',
+				image: '/images/glee-club.jpg',
+				caption:
+					'Yale Glee Club with the Yale Symphony Orchestra, December 13, 2026, at 1:30pm in Battell Chapel. Details can be found here.',
+				href: 'https://gleeclub.yale.edu/events/2026-12-13-messiah-audience-singalong',
+				startsAt: '2026-12-13T13:30:00-05:00',
+			},
+			{
+				id: 'heroes-dreams',
+				title: 'Heroes and Dreams: Around the World in 1894-5',
+				image: '/images/yso-heroes-dreams.jpg',
+				caption:
+					'Yale Symphony Orchestra, February 13, 2027, at 7:30pm in Woolsey Hall. Details can be found here.',
+				href: 'https://www.eventbrite.com/e/heroes-and-dreams-around-the-world-in-1894-5-tickets-1990504762327',
+				startsAt: '2027-02-13T19:30:00-05:00',
+			},
+			{
+				id: 'rome-leningrad',
+				title: 'Rome and Leningrad: Destruction and Transcendence',
+				image: '/images/yso-rome-leningrad.jpg',
+				caption:
+					'Yale Symphony Orchestra, April 3, 2027, at 7:30pm in Woolsey Hall. Details can be found here.',
+				href: 'https://www.eventbrite.com/e/rome-and-leningrad-destruction-and-transcendence-tickets-1990523611706',
+				startsAt: '2027-04-03T19:30:00-04:00',
+			},
+			{
+				id: 'death-transfiguration',
+				title: 'Death and Transfiguration',
+				image: '/images/yso-death-transfiguration.jpg',
+				caption:
+					'Yale Symphony Orchestra with the Yale Glee Club, April 24, 2027, at 7:30pm in Woolsey Hall. Details can be found here.',
+				href: 'https://www.eventbrite.com/e/death-and-transfiguration-tickets-1990524154329',
+				startsAt: '2027-04-24T19:30:00-04:00',
 			},
 			{
 				id: 'benefit-concerts',

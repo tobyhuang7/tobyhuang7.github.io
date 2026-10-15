@@ -106,11 +106,16 @@ const interests = [
 		{
 			shows.length > 0 && (
 				<section class="upcoming" id="upcoming" hidden aria-labelledby="upcoming-title">
-					<h2 id="upcoming-title" data-rise>Upcoming:</h2>
+					<h2 id="upcoming-title" data-rise>Featured:</h2>
 					<div class="shows">
 						{
 							shows.map((project) => (
-								<article class="show" data-pop data-starts={project.startsAt}>
+								<article
+									class="show"
+									data-pop
+									data-starts={project.startsAt}
+									data-tickets={project.ticketsAt}
+								>
 									<a href={`/music-and-film#${project.id}`} aria-label={project.title}>
 										<img src={project.image} alt="" width="1880" height="940" />
 										<span class="thumb-caption">
@@ -118,12 +123,20 @@ const interests = [
 											<span>{project.caption}</span>
 										</span>
 									</a>
+									{project.ticketsAt && <p class="ticket-label">Tickets drop in</p>}
 									<p class="countdown" role="timer">
 										<span><strong data-unit="d">0</strong><small data-label="d">days</small></span>
 										<span><strong data-unit="h">0</strong><small data-label="h">hours</small></span>
 										<span><strong data-unit="m">0</strong><small data-label="m">minutes</small></span>
 										<span><strong data-unit="s">0</strong><small data-label="s">seconds</small></span>
 									</p>
+									{
+										project.ticketsHref && (
+											<a class="ticket-button" href={project.ticketsHref} target="_blank" rel="noreferrer">
+												Get tickets
+											</a>
+										)
+									}
 								</article>
 							))
 						}
@@ -134,14 +147,28 @@ const interests = [
 							if (!section) return;
 							var shows = Array.prototype.slice.call(section.querySelectorAll('.show'));
 							var now = Date.now();
-							var shown = 0;
+							var future = [];
 							for (var i = 0; i < shows.length; i++) {
 								var time = Date.parse(shows[i].getAttribute('data-starts'));
 								if (isNaN(time) || time < now) shows[i].remove();
-								else shown += 1;
+								else future.push(shows[i]);
 							}
-							if (!shown) return;
+							var featured = null;
+							var bestTicket = Infinity;
+							for (var f = 0; f < future.length; f++) {
+								var tickets = Date.parse(future[f].getAttribute('data-tickets') || '');
+								if (!isNaN(tickets) && tickets > now && tickets < bestTicket) {
+									featured = future[f];
+									bestTicket = tickets;
+								}
+							}
+							if (!featured && future.length) featured = future[0];
+							for (var k = 0; k < future.length; k++) {
+								if (future[k] !== featured) future[k].remove();
+							}
+							if (!featured) return;
 							section.hidden = false;
+							if (location.hash === '#' + section.id) section.scrollIntoView();
 
 							var units = [
 								['d', 86400000, 'day', 'days'],
@@ -150,23 +177,32 @@ const interests = [
 								['s', 1000, 'second', 'seconds'],
 							];
 
-							function paint(show) {
-								var start = Date.parse(show.getAttribute('data-starts'));
-								var box = show.querySelector('.countdown');
+							function paintClock(box, start, done) {
 								var left = start - Date.now();
 								if (left <= 0) {
-									box.textContent = 'Starting now';
+									if (done) box.textContent = done;
+									else box.hidden = true;
 									return false;
 								}
 								var rest = left;
 								for (var n = 0; n < units.length; n++) {
 									var count = Math.floor(rest / units[n][1]);
 									rest -= count * units[n][1];
-									show.querySelector('[data-unit="' + units[n][0] + '"]').textContent = String(count);
-									show.querySelector('[data-label="' + units[n][0] + '"]').textContent =
+									box.querySelector('[data-unit="' + units[n][0] + '"]').textContent = String(count);
+									box.querySelector('[data-label="' + units[n][0] + '"]').textContent =
 										count === 1 ? units[n][2] : units[n][3];
 								}
 								return true;
+							}
+
+							function paint(show) {
+								var box = show.querySelector('.countdown');
+								var tickets = Date.parse(show.getAttribute('data-tickets') || '');
+								var start = Date.parse(show.getAttribute('data-starts'));
+								var dropping = !isNaN(tickets) && tickets > Date.now();
+								var label = show.querySelector('.ticket-label');
+								if (label) label.hidden = !dropping;
+								return paintClock(box, dropping ? tickets : start, 'Starting now');
 							}
 
 							function tick() {
@@ -341,6 +377,7 @@ const interests = [
 	.upcoming {
 		container-type: inline-size;
 		padding: 0 0.65rem 3.5rem;
+		scroll-margin-top: 5rem;
 	}
 
 	.upcoming h2 {
@@ -364,7 +401,7 @@ const interests = [
 		width: min(100%, 60rem);
 	}
 
-	.upcoming .show a {
+	.upcoming .show > a:not(.ticket-button) {
 		position: relative;
 		display: block;
 		aspect-ratio: 2 / 1;
@@ -432,6 +469,24 @@ const interests = [
 		transform: scale(1.03);
 	}
 
+	.ticket-label {
+		margin: 0.95rem 0 0;
+		text-align: center;
+		font-family: "Libre Baskerville", Palatino, Georgia, serif;
+		font-style: italic;
+		font-weight: 400;
+		font-size: 1.2rem;
+		color: #6a7ab4;
+	}
+
+	.ticket-label[hidden] {
+		display: none;
+	}
+
+	.ticket-label + .countdown {
+		margin-top: 0.55rem;
+	}
+
 	.countdown {
 		display: flex;
 		justify-content: center;
@@ -444,6 +499,24 @@ const interests = [
 		background: #fff;
 		box-shadow: 0 10px 28px rgba(70, 86, 150, 0.1);
 		text-align: center;
+	}
+
+	.ticket-button {
+		display: block;
+		width: fit-content;
+		margin: 0.85rem auto 0;
+		padding: 0.7rem 1.45rem;
+		border-radius: 1.15rem;
+		background: #6a7ab4;
+		color: #fff;
+		font-size: 1.05rem;
+		line-height: 1.2;
+		text-decoration: none;
+	}
+
+	.ticket-button:hover,
+	.ticket-button:focus-visible {
+		background: #546498;
 	}
 
 	.countdown strong {
@@ -699,6 +772,20 @@ const interests = [
 
 	:global(body[data-theme='dark']) .countdown small {
 		color: #f7f4ff;
+	}
+
+	:global(body[data-theme='dark']) .ticket-label {
+		color: #ee9cf9;
+	}
+
+	:global(body[data-theme='dark']) .ticket-button {
+		background: #ee9cf9;
+		color: #181d3b;
+	}
+
+	:global(body[data-theme='dark']) .ticket-button:hover,
+	:global(body[data-theme='dark']) .ticket-button:focus-visible {
+		background: #f7c6ff;
 	}
 
 	:global(body[data-theme='dark']) .tabs a {

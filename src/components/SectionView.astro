@@ -76,11 +76,16 @@ interface Props {
 
 const { section } = Astro.props;
 const extras = section.extras ?? [];
-const dated = section.projects
-	.filter((project) => project.startsAt)
-	.slice()
+const now = Date.now();
+const withDate = section.projects.filter((project) => project.startsAt);
+const dated = withDate.slice();
+const upcoming = withDate
+	.filter((project) => Date.parse(project.startsAt!) >= now)
+	.sort((a, b) => Date.parse(a.startsAt!) - Date.parse(b.startsAt!));
+const past = withDate
+	.filter((project) => Date.parse(project.startsAt!) < now)
 	.sort((a, b) => Date.parse(b.startsAt!) - Date.parse(a.startsAt!));
-const projects = [...dated, ...section.projects.filter((project) => !project.startsAt)];
+const projects = [...upcoming, ...past, ...section.projects.filter((project) => !project.startsAt)];
 const overlays = [
 	...projects.map((project) => ({ ...project, close: '#projects' })),
 	...extras.flatMap((extra) =>
@@ -125,7 +130,7 @@ function linkedCaption(caption: string, href?: string) {
 		{
 			dated.length > 0 && (
 				<section class="next-show" id="next-show" hidden aria-labelledby="next-show-title">
-					<h2 id="next-show-title" data-rise>Next Show:</h2>
+					<h2 id="next-show-title" data-rise>Upcoming:</h2>
 					<div class="stage">
 						<div class="thumbs">
 							{
@@ -174,7 +179,7 @@ function linkedCaption(caption: string, href?: string) {
 				)
 			}
 			{section.projectsTitle && <p class="when-empty" id="when-empty" hidden>No shows in this range.</p>}
-			<div class="thumbs">
+			<div class:list={['thumbs', { 'show-grid': section.slug === 'music-and-film' }]}>
 			{
 				projects.map((project) => (
 					<a
@@ -268,6 +273,32 @@ function linkedCaption(caption: string, href?: string) {
 								}, 2600);
 							});
 						}
+					}
+				}
+
+				if (grid) {
+					var frame = grid.querySelector('.thumbs');
+					if (frame) {
+						var listed = Array.prototype.slice.call(frame.children);
+						var soon = [];
+						var earlier = [];
+						var undated = [];
+						var moment = Date.now();
+						for (var n = 0; n < listed.length; n++) {
+							var raw = listed[n].getAttribute('data-starts');
+							var when = raw ? Date.parse(raw) : NaN;
+							if (isNaN(when)) undated.push(listed[n]);
+							else if (when >= moment) soon.push(listed[n]);
+							else earlier.push(listed[n]);
+						}
+						soon.sort(function (a, b) {
+							return Date.parse(a.getAttribute('data-starts')) - Date.parse(b.getAttribute('data-starts'));
+						});
+						earlier.sort(function (a, b) {
+							return Date.parse(b.getAttribute('data-starts')) - Date.parse(a.getAttribute('data-starts'));
+						});
+						var ordered = soon.concat(earlier, undated);
+						for (var m = 0; m < ordered.length; m++) frame.appendChild(ordered[m]);
 					}
 				}
 
@@ -465,7 +496,8 @@ function linkedCaption(caption: string, href?: string) {
 	}
 
 	.next-show .stage {
-		width: 100%;
+		width: min(94vw, 80rem);
+		margin-inline: auto;
 	}
 
 	.grid-frame h2 {
@@ -482,6 +514,10 @@ function linkedCaption(caption: string, href?: string) {
 		gap: var(--gap);
 	}
 
+	.show-grid {
+		grid-auto-rows: calc((100cqi - (var(--cols) - 1) * var(--gap)) / var(--cols) / 2);
+	}
+
 	.next-show .thumbs {
 		--cols: 1;
 		grid-auto-rows: calc(100cqi / 2);
@@ -489,6 +525,10 @@ function linkedCaption(caption: string, href?: string) {
 
 	.next-show .thumbs img {
 		object-fit: contain;
+	}
+
+	.next-show .thumbs a.portrait {
+		grid-row: auto;
 	}
 
 	.thumbs a[hidden] {
@@ -568,6 +608,10 @@ function linkedCaption(caption: string, href?: string) {
 	}
 
 	.thumbs a.poster img {
+		object-fit: contain;
+	}
+
+	.thumbs.show-grid img {
 		object-fit: contain;
 	}
 
@@ -848,7 +892,7 @@ function linkedCaption(caption: string, href?: string) {
 		}
 
 		.next-show .stage {
-			width: 100%;
+			width: min(100% - 1.3rem, 80rem);
 		}
 
 		.copy p {
