@@ -96,6 +96,32 @@ const overlays = [
 	captionParts: linkedCaption(project.caption, project.href),
 }));
 
+function showWhen(startsAt?: string) {
+	const match = startsAt?.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+	if (!match) return '';
+	const months = [
+		'January',
+		'February',
+		'March',
+		'April',
+		'May',
+		'June',
+		'July',
+		'August',
+		'September',
+		'October',
+		'November',
+		'December',
+	];
+	const hour24 = Number(match[4]);
+	const suffix = hour24 >= 12 ? 'pm' : 'am';
+	const hour = hour24 % 12 || 12;
+	return `${months[Number(match[2]) - 1]} ${Number(match[3])}, ${match[1]}, ${hour}:${match[5]}${suffix}`;
+}
+
+const undated = section.projects.filter((project) => !project.startsAt);
+const isMusic = section.slug === 'music-and-film';
+
 function linkedCaption(caption: string, href?: string) {
 	const phrase = 'here.';
 	if (!href) return { before: caption, phrase: '', after: '' };
@@ -155,7 +181,87 @@ function linkedCaption(caption: string, href?: string) {
 				</section>
 			)
 		}
-		{projects.length > 0 && (
+		{
+			projects.length > 0 && isMusic && (
+				<section class="show-timeline" id="projects" aria-label="Shows">
+					<h2 id="future-shows-title" data-rise hidden={upcoming.length === 0}>
+						Future Shows
+					</h2>
+					<ol class="timeline" id="future-shows" hidden={upcoming.length === 0}>
+						{
+							upcoming.map((project) => (
+								<li data-starts={project.startsAt}>
+									<span class="dot" aria-hidden="true"></span>
+									<div class="event">
+										<button type="button" class="event-toggle" aria-expanded="false">
+											<time datetime={project.startsAt}>{showWhen(project.startsAt)}</time>
+											<strong>{project.title}</strong>
+										</button>
+										<a
+											data-pop
+											inert
+											class:list={['event-card', { portrait: isPortrait(project.image) }]}
+											href={`#${project.id}`}
+										>
+											<span>
+												<img src={project.image} alt="" width="800" height="400" />
+											</span>
+										</a>
+									</div>
+								</li>
+							))
+						}
+					</ol>
+					<div class="timeline-break" id="past-shows-break" hidden={past.length + undated.length === 0}>
+						<h2 id="past-shows-title" data-rise>Past Shows</h2>
+					</div>
+					<ol class="timeline" id="past-shows" hidden={past.length + undated.length === 0}>
+						{
+							past.map((project) => (
+								<li data-starts={project.startsAt}>
+									<span class="dot" aria-hidden="true"></span>
+									<div class="event">
+										<button type="button" class="event-toggle" aria-expanded="false">
+											<time datetime={project.startsAt}>{showWhen(project.startsAt)}</time>
+											<strong>{project.title}</strong>
+										</button>
+										<a
+											data-pop
+											inert
+											class:list={['event-card', { portrait: isPortrait(project.image) }]}
+											href={`#${project.id}`}
+										>
+											<span>
+												<img src={project.image} alt="" width="800" height="400" />
+											</span>
+										</a>
+									</div>
+								</li>
+							))
+						}
+						{
+							undated.map((project) => (
+								<li>
+									<span class="dot" aria-hidden="true"></span>
+									<div class="event">
+										<button type="button" class="event-toggle" aria-expanded="false">
+											<strong>{project.title}</strong>
+										</button>
+										<a data-pop inert class="event-card" href={`#${project.id}`}>
+											<span>
+												<img src={project.image} alt="" width="800" height="400" />
+											</span>
+										</a>
+									</div>
+								</li>
+							))
+						}
+					</ol>
+				</section>
+			)
+		}
+		{
+			projects.length > 0 && !isMusic && (
 			<section class="grid-frame" id="projects" aria-labelledby={section.projectsTitle ? 'projects-title' : undefined}>
 			{section.projectsTitle && <h2 id="projects-title" data-rise>{section.projectsTitle}</h2>}
 			{
@@ -179,7 +285,7 @@ function linkedCaption(caption: string, href?: string) {
 				)
 			}
 			{section.projectsTitle && <p class="when-empty" id="when-empty" hidden>No shows in this range.</p>}
-			<div class:list={['thumbs', { 'show-grid': section.slug === 'music-and-film' }]}>
+			<div class="thumbs">
 			{
 				projects.map((project) => (
 					<a
@@ -222,7 +328,7 @@ function linkedCaption(caption: string, href?: string) {
 					if (next) {
 						featured.hidden = false;
 						var dupe = grid && grid.querySelector('a[href="' + next.getAttribute('href') + '"]');
-						if (dupe) dupe.remove();
+						if (dupe) (dupe.closest('li') || dupe).remove();
 						if (
 							next.getAttribute('href') === '#halloween' &&
 							!window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -277,19 +383,22 @@ function linkedCaption(caption: string, href?: string) {
 				}
 
 				if (grid) {
-					var frame = grid.querySelector('.thumbs');
-					if (frame) {
-						var listed = Array.prototype.slice.call(frame.children);
+					var futureList = document.getElementById('future-shows');
+					var pastList = document.getElementById('past-shows');
+					if (futureList && pastList) {
+						var items = Array.prototype.slice
+							.call(futureList.children)
+							.concat(Array.prototype.slice.call(pastList.children));
 						var soon = [];
 						var earlier = [];
 						var undated = [];
 						var moment = Date.now();
-						for (var n = 0; n < listed.length; n++) {
-							var raw = listed[n].getAttribute('data-starts');
+						for (var n = 0; n < items.length; n++) {
+							var raw = items[n].getAttribute('data-starts');
 							var when = raw ? Date.parse(raw) : NaN;
-							if (isNaN(when)) undated.push(listed[n]);
-							else if (when >= moment) soon.push(listed[n]);
-							else earlier.push(listed[n]);
+							if (isNaN(when)) undated.push(items[n]);
+							else if (when >= moment) soon.push(items[n]);
+							else earlier.push(items[n]);
 						}
 						soon.sort(function (a, b) {
 							return Date.parse(a.getAttribute('data-starts')) - Date.parse(b.getAttribute('data-starts'));
@@ -297,9 +406,57 @@ function linkedCaption(caption: string, href?: string) {
 						earlier.sort(function (a, b) {
 							return Date.parse(b.getAttribute('data-starts')) - Date.parse(a.getAttribute('data-starts'));
 						});
-						var ordered = soon.concat(earlier, undated);
-						for (var m = 0; m < ordered.length; m++) frame.appendChild(ordered[m]);
+						for (var a = 0; a < soon.length; a++) futureList.appendChild(soon[a]);
+						var older = earlier.concat(undated);
+						for (var b = 0; b < older.length; b++) pastList.appendChild(older[b]);
+						var futureTitle = document.getElementById('future-shows-title');
+						var pastBreak = document.getElementById('past-shows-break');
+						futureList.hidden = soon.length === 0;
+						if (futureTitle) futureTitle.hidden = soon.length === 0;
+						pastList.hidden = older.length === 0;
+						if (pastBreak) pastBreak.hidden = older.length === 0;
+					} else {
+						var frame = grid.querySelector('.thumbs');
+						if (frame) {
+							var listed = Array.prototype.slice.call(frame.children);
+							var soonCards = [];
+							var earlierCards = [];
+							var undatedCards = [];
+							var momentCards = Date.now();
+							for (var n = 0; n < listed.length; n++) {
+								var rawCard = listed[n].getAttribute('data-starts');
+								var whenCard = rawCard ? Date.parse(rawCard) : NaN;
+								if (isNaN(whenCard)) undatedCards.push(listed[n]);
+								else if (whenCard >= momentCards) soonCards.push(listed[n]);
+								else earlierCards.push(listed[n]);
+							}
+							soonCards.sort(function (a, b) {
+								return Date.parse(a.getAttribute('data-starts')) - Date.parse(b.getAttribute('data-starts'));
+							});
+							earlierCards.sort(function (a, b) {
+								return Date.parse(b.getAttribute('data-starts')) - Date.parse(a.getAttribute('data-starts'));
+							});
+							var ordered = soonCards.concat(earlierCards, undatedCards);
+							for (var m = 0; m < ordered.length; m++) frame.appendChild(ordered[m]);
+						}
 					}
+				}
+
+				var toggles = grid && grid.querySelectorAll('.event-toggle');
+				if (toggles) {
+					Array.prototype.forEach.call(toggles, function (toggle) {
+						var item = toggle.closest('li');
+						item.addEventListener('click', function (event) {
+							if (event.target.closest('.event-card')) return;
+							var row = toggle.closest('.event');
+							var open = row.classList.toggle('is-open');
+							toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+							var card = row.querySelector('.event-card');
+							if (!card) return;
+							if (open) card.removeAttribute('inert');
+							else card.setAttribute('inert', '');
+						});
+					});
 				}
 
 				var button = document.getElementById('when-button');
@@ -476,6 +633,7 @@ function linkedCaption(caption: string, href?: string) {
 
 	.extra h2,
 	.grid-frame h2,
+	.show-timeline h2,
 	.next-show h2 {
 		margin: 0.4rem 0 0.85rem;
 		text-align: center;
@@ -516,6 +674,252 @@ function linkedCaption(caption: string, href?: string) {
 
 	.show-grid {
 		grid-auto-rows: calc((100cqi - (var(--cols) - 1) * var(--gap)) / var(--cols) / 2);
+	}
+
+	.show-timeline {
+		padding: 0 1.1rem 2rem;
+	}
+
+	.show-timeline h2[hidden],
+	.timeline[hidden],
+	.timeline-break[hidden] {
+		display: none;
+	}
+
+	.timeline {
+		position: relative;
+		max-width: 44rem;
+		margin: 0 auto 0.4rem;
+		padding: 0;
+		list-style: none;
+	}
+
+	.timeline::before {
+		content: "";
+		position: absolute;
+		top: 0.35rem;
+		bottom: 0.35rem;
+		left: calc(0.425rem - 1px);
+		width: 2px;
+		background: color-mix(in srgb, var(--accent) 45%, transparent);
+	}
+
+	.timeline li {
+		display: grid;
+		grid-template-columns: 0.85rem minmax(0, 1fr);
+		column-gap: 0.95rem;
+		margin: 0 0 1.15rem;
+		min-width: 0;
+		cursor: pointer;
+	}
+
+	.timeline .dot {
+		width: 0.72rem;
+		height: 0.72rem;
+		margin-top: 0.32rem;
+		border-radius: 50%;
+		background: var(--accent);
+		justify-self: center;
+		position: relative;
+		z-index: 1;
+	}
+
+	.timeline .event {
+		display: grid;
+		grid-template-rows: auto auto auto;
+		min-width: 0;
+	}
+
+	.event-toggle {
+		display: grid;
+		grid-row: 1 / -1;
+		grid-column: 1;
+		grid-template-rows: subgrid;
+		z-index: 1;
+		width: 100%;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		color: var(--accent);
+		font-family: "Libre Baskerville", Palatino, Georgia, serif;
+		font-style: italic;
+		font-size: 1.05rem;
+		line-height: 1.35;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.event-toggle time {
+		grid-row: 1;
+	}
+
+	.event-card {
+		grid-row: 2;
+		grid-column: 1;
+		z-index: 2;
+	}
+
+	.event-toggle strong {
+		grid-row: 3;
+	}
+
+	.event-toggle:hover time,
+	.event-toggle:hover strong,
+	.event-toggle:focus-visible time,
+	.event-toggle:focus-visible strong {
+		text-decoration: underline;
+		text-underline-offset: 0.22em;
+	}
+
+	.timeline time {
+		display: block;
+		width: 100%;
+		font: inherit;
+		color: inherit;
+		cursor: pointer;
+	}
+
+	html.js .show-timeline .event .event-card {
+		display: block;
+		max-width: 100%;
+		min-width: 0;
+		max-height: 0;
+		opacity: 0;
+		overflow: hidden;
+		pointer-events: none;
+		animation: none;
+		transition:
+			max-height 0.42s cubic-bezier(0.2, 0.75, 0.2, 1),
+			opacity 0.28s ease;
+	}
+
+	.event-card > span {
+		display: block;
+		min-width: 0;
+		padding-top: 0.7rem;
+	}
+
+	html.js .show-timeline .event.is-open .event-card {
+		max-height: 36rem;
+		opacity: 1;
+		pointer-events: auto;
+	}
+
+	.timeline a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.timeline img {
+		display: block;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+		height: auto;
+		aspect-ratio: 2 / 1;
+		object-fit: contain;
+		background: #101426;
+		border-radius: 0.9rem;
+	}
+
+	.timeline a.portrait img {
+		aspect-ratio: 3 / 4;
+		max-width: 18rem;
+	}
+
+	.timeline strong {
+		display: block;
+		width: 100%;
+		margin-top: 0.15rem;
+		font-family: "Libre Baskerville", Palatino, Georgia, serif;
+		font-style: italic;
+		font-weight: 400;
+		font-size: clamp(1.15rem, 2vw, 1.4rem);
+		line-height: 1.3;
+		color: var(--accent);
+		cursor: pointer;
+	}
+
+	.timeline-break {
+		display: flex;
+		align-items: center;
+		gap: 1.1rem;
+		max-width: 44rem;
+		margin: 0.2rem auto 1.7rem;
+	}
+
+	.timeline-break::before,
+	.timeline-break::after {
+		content: "";
+		height: 1px;
+		flex: 1;
+		background: color-mix(in srgb, var(--accent) 45%, transparent);
+	}
+
+	.timeline-break h2 {
+		margin: 0;
+		flex: none;
+	}
+
+	@media (min-width: 960px) {
+		.show-timeline {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+			column-gap: 2.4rem;
+			align-items: start;
+			max-width: 76rem;
+			margin-inline: auto;
+		}
+
+		#future-shows-title {
+			grid-column: 1;
+			grid-row: 1;
+		}
+
+		#future-shows {
+			grid-column: 1;
+			grid-row: 2;
+			min-width: 0;
+			max-width: none;
+			margin: 0;
+		}
+
+		#past-shows-break {
+			grid-column: 2;
+			grid-row: 1;
+			display: block;
+			max-width: none;
+			margin: 0;
+		}
+
+		#past-shows-break[hidden] {
+			display: none;
+		}
+
+		#past-shows-break::before,
+		#past-shows-break::after {
+			content: none;
+		}
+
+		#past-shows-break h2 {
+			margin: 0.4rem 0 0.85rem;
+		}
+
+		#past-shows {
+			grid-column: 2;
+			grid-row: 2;
+			min-width: 0;
+			max-width: none;
+			margin: 0;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.event-card,
+		.event-card > span {
+			transition: none;
+		}
 	}
 
 	.next-show .thumbs {
@@ -608,10 +1012,6 @@ function linkedCaption(caption: string, href?: string) {
 	}
 
 	.thumbs a.poster img {
-		object-fit: contain;
-	}
-
-	.thumbs.show-grid img {
 		object-fit: contain;
 	}
 

@@ -111,5 +111,13 @@ const themeColor = palette ? themeColors[palette][theme] : theme === 'dark' ? '#
 				img.addEventListener('error', go, { once: true });
 			});
 		</script>
+		<!-- Cloudflare Web Analytics -->
+		<script
+			is:inline
+			type="module"
+			src="https://static.cloudflareinsights.com/beacon.min.js"
+			data-cf-beacon='{"token": "0e76c025fdbb4e04a5958f60dd8a22cd"}'
+		></script>
+		<!-- End Cloudflare Web Analytics -->
 	</body>
 </html>
